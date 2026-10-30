@@ -5,6 +5,13 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- The satellite map showed Esri's "Map data not yet available" tiles when
+  zoomed in where Esri has no imagery at that level, as in much of rural
+  India. The map now checks the service's tile map as the view changes and
+  enlarges the sharpest real imagery instead.
+
 ### Added
 
 - "Use my own roof photo" for places where satellite imagery is too coarse:

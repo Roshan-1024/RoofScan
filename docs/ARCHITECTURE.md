@@ -114,7 +114,11 @@ details never leave the browser.
 browser. The tile server allows cross-origin reads, so tiles are drawn onto
 a canvas without passing through RoofScan's servers. `bestImageryZoom()`
 reads the service's tile map to avoid "Map data not yet available"
-placeholder tiles. Attribution is shown on the map and under the snapshot.
+placeholder tiles. The map does the same: whenever the view settles at
+zoom 14 or closer, it asks the tile map for the highest zoom with real
+imagery at the centre and loads tiles from that level, enlarging them when
+the household zooms in further. Tile-map answers are cached per tile.
+Attribution is shown on the map and under the snapshot.
 
 ## Geometry and layout
 

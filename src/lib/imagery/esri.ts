@@ -19,21 +19,56 @@ export const MIN_IMAGERY_ZOOM = 18;
 
 export class ImageryError extends Error {}
 
+/** Coarsest zoom the map falls back to when looking for real imagery. */
+const MIN_DISPLAY_ZOOM = 13;
+
+const availability = new Map<string, boolean>();
+
 /**
- * Highest zoom with real imagery at a location, using the service's tile
- * map (missing tiles return a "Map data not yet available" placeholder).
- * Returns null when no zoom down to MIN_IMAGERY_ZOOM has imagery.
+ * Whether Esri has real imagery for the tile at a location and zoom, from
+ * the service's tile map. Missing tiles are served as a "Map data not yet
+ * available" placeholder, so they can't be detected from the tile itself.
  */
-export async function bestImageryZoom(lat: number, lon: number): Promise<number | null> {
-  for (let zoom = MAX_IMAGERY_ZOOM; zoom >= MIN_IMAGERY_ZOOM; zoom--) {
-    const { x, y } = latLonToGlobalPixel(lat, lon, zoom);
-    const url = `${SERVICE}/World_Imagery/MapServer/tilemap/${zoom}/${Math.floor(y / TILE_SIZE)}/${Math.floor(x / TILE_SIZE)}/1/1`;
-    const response = await fetch(url);
-    if (!response.ok) throw new ImageryError(`Tile map returned HTTP ${response.status}`);
-    const body = (await response.json()) as { data?: number[] };
-    if (body.data?.[0] === 1) return zoom;
+async function hasImagery(lat: number, lon: number, zoom: number): Promise<boolean> {
+  const { x, y } = latLonToGlobalPixel(lat, lon, zoom);
+  const tileX = Math.floor(x / TILE_SIZE);
+  const tileY = Math.floor(y / TILE_SIZE);
+  const key = `${zoom}/${tileY}/${tileX}`;
+  const cached = availability.get(key);
+  if (cached !== undefined) return cached;
+
+  const response = await fetch(`${SERVICE}/World_Imagery/MapServer/tilemap/${zoom}/${tileY}/${tileX}/1/1`);
+  if (!response.ok) throw new ImageryError(`Tile map returned HTTP ${response.status}`);
+  const body = (await response.json()) as { data?: number[] };
+  const available = body.data?.[0] === 1;
+  if (availability.size > 2000) availability.clear();
+  availability.set(key, available);
+  return available;
+}
+
+/** Highest zoom with real imagery at a location, from `from` down to `to`; null if none. */
+async function highestZoomWithImagery(lat: number, lon: number, from: number, to: number): Promise<number | null> {
+  for (let zoom = from; zoom >= to; zoom--) {
+    if (await hasImagery(lat, lon, zoom)) return zoom;
   }
   return null;
+}
+
+/**
+ * Zoom to measure a roof at: the highest with real imagery, or null when
+ * nothing down to MIN_IMAGERY_ZOOM has imagery.
+ */
+export function bestImageryZoom(lat: number, lon: number): Promise<number | null> {
+  return highestZoomWithImagery(lat, lon, MAX_IMAGERY_ZOOM, MIN_IMAGERY_ZOOM);
+}
+
+/**
+ * Highest zoom the map should load tiles from at a location. The map
+ * enlarges these tiles when zoomed in further, instead of showing
+ * placeholders.
+ */
+export async function displayImageryZoom(lat: number, lon: number): Promise<number> {
+  return (await highestZoomWithImagery(lat, lon, MAX_IMAGERY_ZOOM, MIN_DISPLAY_ZOOM)) ?? MIN_DISPLAY_ZOOM;
 }
 
 export interface RoofSnapshot {
