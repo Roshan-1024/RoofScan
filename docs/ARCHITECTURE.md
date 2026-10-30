@@ -61,7 +61,12 @@ household through the check. Each step is its own component in
 
 1. **Find your house** (`find-house.tsx`): address search, "use my
    location", and a Leaflet satellite map (`satellite-map.tsx`, loaded on
-   the client only) where the household taps their roof. "Measure this roof"
+   the client only, kept to the area around India) where the household taps
+   their roof. Each pin is checked: outside India's bounding box it is
+   rejected at once; inside it, `GET /api/region` must confirm country code
+   `in`, which also supplies the state for the subsidy rate. Measuring and
+   uploading stay disabled until the pin is confirmed, and answers for pins
+   that have since moved are ignored. "Measure this roof"
    asks Esri's tile map for the best zoom at that point, stitches a snapshot
    in the browser and looks up the region in parallel. "Use my own roof
    photo" (`roof-upload.tsx`) instead takes a top-down photo, fits it into a

@@ -104,6 +104,9 @@ export const en = {
       capturing: "Getting the satellite image…",
       noImagery: "Detailed satellite imagery isn't available at this spot yet. You can use your own photo of the roof instead.",
       uploadInstead: "Use my own roof photo",
+      checkingPlace: "Checking the location…",
+      outsideIndia: "RoofScan only works for homes in India, where PM Surya Ghar applies. Choose a location in India.",
+      placeCheckError: "We couldn't confirm this location. Tap the roof again to retry.",
       imageryError: "We couldn't load the satellite image. Check your connection and try again.",
       mapLabel: "Satellite map. Tap your roof to select it.",
     },
@@ -164,6 +167,8 @@ export const en = {
       consumerNumber: "Consumer number (optional)",
       consumerNumberHint: "Needed for your application. Your report shows only the last four digits.",
       household: "People living in your home",
+      priorSolar: "Rooftop solar you already got a subsidy for (kW, optional)",
+      priorSolarHint: "The subsidy covers at most 3 kW per home in total, so earlier subsidised capacity reduces it. Leave empty if none.",
       continue: "See my solar plan",
       back: "Back to the roof",
       errors: {
@@ -172,6 +177,7 @@ export const en = {
         fixed: "Fixed charges must be less than the bill amount.",
         sanctionedLoad: "Enter the sanctioned load in kW, or leave it empty.",
         household: "Enter how many people live in your home.",
+        priorSolar: "Enter the capacity in kW, or leave it empty.",
       },
       unusualTariff: "That works out to {value} per unit, which is unusual for a home. Please check the amount and the units.",
     },
@@ -219,6 +225,7 @@ export const en = {
       warnings: {
         sanctioned: "This system is larger than your sanctioned load of {value} kW. Your DISCOM may ask you to increase it.",
         nonResidential: "PM Surya Ghar subsidies are only for residential connections, so no subsidy is counted.",
+        priorSubsidy: "You already received a subsidy for {value} kW, so only the balance up to 3 kW is counted.",
       },
       howTitle: "How we calculated this",
       howItems: [
@@ -234,7 +241,7 @@ export const en = {
     },
     apply: {
       title: "How to apply",
-      intro: "Apply on the official PM Surya Ghar national portal. RoofScan can't apply for you, but here is everything you need.",
+      intro: "Apply on the official PM Surya Ghar national portal before the scheme ends on 31 March 2027. RoofScan can't apply for you, but here is everything you need.",
       portal: "Open the PM Surya Ghar portal",
       detailsTitle: "Details for your application",
       state: "State",
@@ -248,7 +255,7 @@ export const en = {
         "Register on the portal with your state, electricity company (DISCOM), consumer number and mobile number. You get an application reference number by SMS.",
         "Log in and apply for rooftop solar with the system size above.",
         "Wait for your DISCOM's feasibility approval, usually 7 to 15 working days. Don't install anything before it.",
-        "Choose a vendor registered on the portal for your DISCOM, and have the system installed.",
+        "Choose a vendor registered on the portal for your DISCOM, and have the system installed. The panels must be DCR panels (made in India from Indian-made cells); any other panel loses the subsidy.",
         "Submit the installation details and apply for a net meter on the portal.",
         "Your DISCOM inspects the system, installs the net meter and issues a commissioning certificate.",
         "Add your bank account details and a cancelled cheque on the portal. The subsidy is paid straight into your account.",

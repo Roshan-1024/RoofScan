@@ -95,6 +95,12 @@ describe("planSolar", () => {
     expect(plan.netCost).toBe(plan.grossCost);
   });
 
+  it("pays only the balance up to 3 kW after an earlier subsidy", () => {
+    // 2.725 kW new on top of 1 kW subsidised before: CFA for kW 2 and the first 0.725 of kW 3.
+    expect(planSolar({ ...base, priorSubsidisedKw: 1 }).subsidy).toBe(30_000 + 18_000);
+    expect(planSolar({ ...base, priorSubsidisedKw: 3 }).subsidy).toBe(0);
+  });
+
   it("uses the special category rate when asked", () => {
     expect(planSolar({ ...base, subsidyCategory: "special" }).subsidy).toBe(80_355);
   });

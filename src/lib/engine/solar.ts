@@ -7,7 +7,7 @@ import {
   MODULE_KW,
   PERFORMANCE_RATIO,
 } from "./assumptions";
-import { centralSubsidy, type SubsidyCategory } from "./subsidy";
+import { subsidyAfterPrior, type SubsidyCategory } from "./subsidy";
 
 /** Twelve monthly values, January to December. */
 export type MonthlySeries = readonly number[];
@@ -24,6 +24,8 @@ export interface SolarPlanInput {
   subsidyCategory: SubsidyCategory;
   /** PM Surya Ghar only covers residential connections; false gives no subsidy. Defaults to true. */
   subsidyEligible?: boolean;
+  /** Rooftop solar the household already received CFA for, in kW; only the balance up to 3 kW is paid. */
+  priorSubsidisedKw?: number;
   /** Sanctioned load from the bill, in kW. Used for a warning, not as a cap. */
   sanctionedLoadKw?: number;
   /** Installed cost before subsidy, ₹/kW. */
@@ -101,6 +103,7 @@ export function planSolar(input: SolarPlanInput): SolarPlan {
     tariffPerKwh,
     subsidyCategory,
     subsidyEligible = true,
+    priorSubsidisedKw = 0,
     sanctionedLoadKw,
     costPerKw = DEFAULT_COST_PER_KW,
     exportRatePerKwh = DEFAULT_EXPORT_RATE_PER_KWH,
@@ -139,7 +142,9 @@ export function planSolar(input: SolarPlanInput): SolarPlan {
   const annualGenerationKwh = annualYieldPerKw * capacityKw;
 
   const grossCost = Math.round(capacityKw * costPerKw);
-  const subsidy = subsidyEligible ? Math.min(centralSubsidy(capacityKw, subsidyCategory), grossCost) : 0;
+  const subsidy = subsidyEligible
+    ? Math.min(subsidyAfterPrior(capacityKw, priorSubsidisedKw, subsidyCategory), grossCost)
+    : 0;
   const netCost = grossCost - subsidy;
 
   const annualSavings = savingsInYear(annualGenerationKwh, annualConsumptionKwh, tariffPerKwh, exportRatePerKwh, 0);

@@ -14,7 +14,8 @@ type Field =
   | "residential"
   | "discom"
   | "consumerNumber"
-  | "householdSize";
+  | "householdSize"
+  | "priorSubsidisedKw";
 
 type Values = Record<Field, string>;
 
@@ -24,6 +25,7 @@ const ERROR_KEYS: Partial<Record<Field, keyof Dictionary["check"]["bill"]["error
   fixedChargesRupees: "fixed",
   sanctionedLoadKw: "sanctionedLoad",
   householdSize: "household",
+  priorSubsidisedKw: "priorSolar",
 };
 
 function toValues(bill?: BillDetails): Values {
@@ -37,6 +39,7 @@ function toValues(bill?: BillDetails): Values {
     discom: bill?.discom ?? "",
     consumerNumber: bill?.consumerNumber ?? "",
     householdSize: bill ? String(bill.householdSize) : "4",
+    priorSubsidisedKw: bill?.priorSubsidisedKw !== undefined ? String(bill.priorSubsidisedKw) : "",
   };
 }
 
@@ -54,6 +57,7 @@ function toCandidate(values: Values) {
     discom: optionalText(values.discom),
     consumerNumber: optionalText(values.consumerNumber),
     householdSize: Number(values.householdSize),
+    priorSubsidisedKw: optionalNumber(values.priorSubsidisedKw),
   };
 }
 
@@ -186,6 +190,11 @@ export function BillForm({
         <TextField label={dict.household} error={errors.householdSize}>
           {({ id, describedBy }) => (
             <input id={id} aria-describedby={describedBy} inputMode="numeric" value={values.householdSize} onChange={set("householdSize")} className={inputClass} />
+          )}
+        </TextField>
+        <TextField label={dict.priorSolar} hint={dict.priorSolarHint} error={errors.priorSubsidisedKw}>
+          {({ id, describedBy }) => (
+            <input id={id} aria-describedby={describedBy} inputMode="decimal" value={values.priorSubsidisedKw} onChange={set("priorSubsidisedKw")} className={inputClass} />
           )}
         </TextField>
       </div>

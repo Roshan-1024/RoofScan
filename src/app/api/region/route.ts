@@ -3,11 +3,14 @@ import { NominatimError, regionAt } from "@/lib/data/nominatim";
 import { isInIndiaBounds } from "@/lib/geo/india";
 import { clientKey, RateLimiter } from "@/lib/security/rate-limit";
 
-const limiter = new RateLimiter(20, 10 * 60 * 1000);
+// Checked on every pin drop, so allow more than the search route.
+const limiter = new RateLimiter(60, 10 * 60 * 1000);
 
 /**
- * GET /api/region?lat=18.52&lon=73.86: state and district for a location in
- * India. Always English, so state names match the subsidy rules.
+ * GET /api/region?lat=18.52&lon=73.86: country, state and district for a
+ * location. The caller checks the country, because India's bounding box also
+ * covers parts of neighbouring countries. Always English, so state names
+ * match the subsidy rules.
  */
 export async function GET(request: NextRequest) {
   const lat = Number(request.nextUrl.searchParams.get("lat"));

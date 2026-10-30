@@ -12,7 +12,8 @@ import type { RainfallData, Region, RoofState, SiteResources } from "./types";
 
 interface SelectedSite {
   snapshot: RoofSnapshot;
-  region?: Region;
+  /** Always confirmed to be in India before the household can continue. */
+  region: Region;
 }
 
 type Step = 0 | 1 | 2 | 3;
@@ -37,6 +38,8 @@ function readProgress(): Progress {
     if (saved && typeof saved.step === "number" && saved.step >= 0 && saved.step <= 3) {
       // Sessions saved before uploads existed only had satellite imagery.
       if (saved.site && !saved.site.snapshot.source) saved.site.snapshot.source = "esri";
+      // Sessions saved before the country check can't be trusted to be in India.
+      if (saved.site && saved.site.region?.countryCode !== "in") return EMPTY;
       return saved;
     }
   } catch {

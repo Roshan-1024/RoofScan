@@ -22,6 +22,8 @@ export interface Place {
 }
 
 export interface Region {
+  /** ISO 3166-1 alpha-2 code in lower case, e.g. "in". */
+  countryCode?: string;
   state?: string;
   district?: string;
   label: string;
@@ -44,6 +46,7 @@ const reverseSchema = z.object({
       state_district: z.string().optional(),
       county: z.string().optional(),
       city_district: z.string().optional(),
+      country_code: z.string().optional(),
     })
     .partial(),
 });
@@ -109,7 +112,7 @@ export async function searchPlaces(query: string, language: string): Promise<Pla
   }));
 }
 
-/** State and district for a coordinate. */
+/** Country, state and district for a coordinate. */
 export async function regionAt(lat: number, lon: number, language: string): Promise<Region> {
   const body = await getJson("/reverse", {
     lat: lat.toFixed(6),
@@ -119,10 +122,13 @@ export async function regionAt(lat: number, lon: number, language: string): Prom
     addressdetails: "1",
     "accept-language": language,
   });
+  // Points at sea or with no address come back as { error: "Unable to geocode" }: no country.
+  if (body && typeof body === "object" && "error" in body) return { label: "" };
   const parsed = reverseSchema.safeParse(body);
   if (!parsed.success) throw new NominatimError("Unexpected Nominatim reverse response");
   const { address, display_name } = parsed.data;
   return {
+    countryCode: address.country_code?.toLowerCase(),
     state: address.state,
     district: address.state_district ?? address.county ?? address.city_district,
     label: display_name,

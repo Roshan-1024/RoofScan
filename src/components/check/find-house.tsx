@@ -1,8 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import type { Dictionary, Locale } from "@/i18n";
+import { isInIndiaBounds } from "@/lib/geo/india";
 import { bestImageryZoom, captureSnapshot, type RoofSnapshot } from "@/lib/imagery/esri";
 import { RoofUpload } from "./roof-upload";
 import type { LatLon, MapView, Region } from "./types";
@@ -23,13 +24,23 @@ interface Place {
 type SearchState = "idle" | "loading" | "empty" | "error";
 type CaptureState = "idle" | "capturing" | "noImagery" | "error";
 
-async function lookupRegion(point: LatLon): Promise<Region | undefined> {
-  try {
-    const response = await fetch(`/api/region?lat=${point.lat}&lon=${point.lon}`);
-    return response.ok ? ((await response.json()) as Region) : undefined;
-  } catch {
-    return undefined;
-  }
+/** Whether the pinned spot is confirmed to be in India, where PM Surya Ghar applies. */
+type PlaceCheck =
+  | { status: "idle" }
+  | { status: "checking" }
+  | { status: "inIndia"; region: Region }
+  | { status: "outsideIndia" }
+  | { status: "error" };
+
+/**
+ * Country, state and district for a point. Coordinates are rounded to about
+ * 100 m, which is plenty for a state or district and lets the server reuse
+ * cached answers.
+ */
+async function lookupRegion(point: LatLon): Promise<Region> {
+  const response = await fetch(`/api/region?lat=${point.lat.toFixed(3)}&lon=${point.lon.toFixed(3)}`);
+  if (!response.ok) throw new Error(`region lookup returned ${response.status}`);
+  return (await response.json()) as Region;
 }
 
 export function FindHouse({
@@ -43,7 +54,7 @@ export function FindHouse({
   dict: Dictionary["check"]["find"];
   uploadDict: Dictionary["check"]["upload"];
   imageDetail: string;
-  onSelected: (site: { snapshot: RoofSnapshot; region?: Region }) => void;
+  onSelected: (site: { snapshot: RoofSnapshot; region: Region }) => void;
 }) {
   const [query, setQuery] = useState("");
   const [places, setPlaces] = useState<Place[]>([]);
@@ -54,6 +65,9 @@ export function FindHouse({
   const [point, setPoint] = useState<LatLon | null>(null);
   const [captureState, setCaptureState] = useState<CaptureState>("idle");
   const [uploading, setUploading] = useState(false);
+  const [placeCheck, setPlaceCheck] = useState<PlaceCheck>({ status: "idle" });
+  // Ignores answers for pins the household has since moved.
+  const latestCheck = useRef(0);
 
   async function search(event: FormEvent) {
     event.preventDefault();
@@ -97,13 +111,28 @@ export function FindHouse({
     );
   }
 
-  function selectPoint(next: LatLon) {
+  async function selectPoint(next: LatLon) {
     setPoint(next);
     setCaptureState("idle");
+    const check = ++latestCheck.current;
+    // India's bounding box also covers parts of its neighbours, so the
+    // country is confirmed by reverse geocoding.
+    if (!isInIndiaBounds(next.lat, next.lon)) {
+      setPlaceCheck({ status: "outsideIndia" });
+      return;
+    }
+    setPlaceCheck({ status: "checking" });
+    try {
+      const region = await lookupRegion(next);
+      if (check !== latestCheck.current) return;
+      setPlaceCheck(region.countryCode === "in" ? { status: "inIndia", region } : { status: "outsideIndia" });
+    } catch {
+      if (check === latestCheck.current) setPlaceCheck({ status: "error" });
+    }
   }
 
   async function measure() {
-    if (!point) return;
+    if (!point || placeCheck.status !== "inIndia") return;
     setCaptureState("capturing");
     try {
       const zoom = await bestImageryZoom(point.lat, point.lon);
@@ -111,21 +140,20 @@ export function FindHouse({
         setCaptureState("noImagery");
         return;
       }
-      const [snapshot, region] = await Promise.all([
-        captureSnapshot(point.lat, point.lon, zoom),
-        lookupRegion(point),
-      ]);
-      onSelected({ snapshot, region });
+      const snapshot = await captureSnapshot(point.lat, point.lon, zoom);
+      onSelected({ snapshot, region: placeCheck.region });
     } catch {
       setCaptureState("error");
     }
   }
 
-  async function handleUpload(snapshot: RoofSnapshot) {
-    onSelected({ snapshot, region: await lookupRegion(snapshot.center) });
+  function handleUpload(snapshot: RoofSnapshot) {
+    if (placeCheck.status === "inIndia") onSelected({ snapshot, region: placeCheck.region });
   }
 
-  if (uploading && point) {
+  const canContinue = point !== null && placeCheck.status === "inIndia";
+
+  if (uploading && canContinue) {
     return (
       <RoofUpload
         point={point}
@@ -201,12 +229,12 @@ export function FindHouse({
         <button
           type="button"
           onClick={measure}
-          disabled={!point || captureState === "capturing"}
+          disabled={!canContinue || captureState === "capturing"}
           className="rounded-full bg-primary px-6 py-3 font-semibold text-primary-ink disabled:opacity-50"
         >
           {captureState === "capturing" ? dict.capturing : dict.measure}
         </button>
-        {point && (
+        {canContinue && (
           <button
             type="button"
             onClick={() => setUploading(true)}
@@ -215,6 +243,9 @@ export function FindHouse({
             {dict.uploadInstead}
           </button>
         )}
+        {placeCheck.status === "checking" && <p className="text-muted">{dict.checkingPlace}</p>}
+        {placeCheck.status === "outsideIndia" && <p className="text-danger">{dict.outsideIndia}</p>}
+        {placeCheck.status === "error" && <p className="text-danger">{dict.placeCheckError}</p>}
         {captureState === "noImagery" && <p className="text-danger">{dict.noImagery}</p>}
         {captureState === "error" && <p className="text-danger">{dict.imageryError}</p>}
       </div>

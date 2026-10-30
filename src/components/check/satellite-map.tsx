@@ -13,6 +13,11 @@ import {
 import type { LatLon, MapView } from "./types";
 
 const INDIA_CENTER: [number, number] = [22.5, 79];
+/** Keeps the map around India, with some margin; RoofScan only works there. */
+const MAP_BOUNDS: [[number, number], [number, number]] = [
+  [2, 62],
+  [40, 104],
+];
 /** Below this zoom every place has imagery, so there is nothing to check. */
 const CHECK_FROM_ZOOM = 14;
 
@@ -77,6 +82,8 @@ export default function SatelliteMap({
       center={INDIA_CENTER}
       zoom={5}
       minZoom={4}
+      maxBounds={MAP_BOUNDS}
+      maxBoundsViscosity={1}
       maxZoom={MAX_IMAGERY_ZOOM + 1}
       className="h-[60vh] max-h-[520px] min-h-[320px] w-full"
     >

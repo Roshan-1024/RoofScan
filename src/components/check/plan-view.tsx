@@ -82,6 +82,7 @@ export function PlanView({
       tariffPerKwh: tariffPerKwh(bill),
       subsidyCategory,
       subsidyEligible: bill.residential,
+      priorSubsidisedKw: bill.priorSubsidisedKw,
       sanctionedLoadKw: bill.sanctionedLoadKw,
       costPerKw,
       panelsOverride,
@@ -128,6 +129,9 @@ export function PlanView({
       ? fill(dict.warnings.sanctioned, { value: formatNumber(bill.sanctionedLoadKw, 2) })
       : null,
     !bill.residential ? dict.warnings.nonResidential : null,
+    bill.residential && bill.priorSubsidisedKw
+      ? fill(dict.warnings.priorSubsidy, { value: formatNumber(bill.priorSubsidisedKw, 2) })
+      : null,
   ].filter((w): w is string => w !== null);
 
   return (

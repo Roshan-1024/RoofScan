@@ -36,7 +36,7 @@ new check.
 |---|---|---|
 | Meta Model API | Roof image tiles, bill photos, voice recordings | Segmentation, bill reading, transcription |
 | Esri World Imagery | Map tile requests, sent directly from the visitor's browser (location and IP address) | Satellite imagery |
-| OpenStreetMap Nominatim | Address searches and coordinates, sent from RoofScan's server, so the visitor's IP address is not shared | Geocoding |
+| OpenStreetMap Nominatim | Address searches, and pinned coordinates rounded to about 100 m, sent from RoofScan's server, so the visitor's IP address is not shared | Geocoding and confirming the location is in India |
 | NASA POWER | Coordinates | Solar resource data |
 | Open-Meteo | Coordinates | Rainfall data |
 

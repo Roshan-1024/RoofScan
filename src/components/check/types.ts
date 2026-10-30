@@ -1,8 +1,10 @@
 import type { Polygon } from "@/lib/geometry/polygon";
 import type { RoofLayout } from "@/lib/layout/panels";
 
-/** State and district for the chosen location, from GET /api/region. */
+/** Country, state and district for the chosen location, from GET /api/region. */
 export interface Region {
+  /** Lower-case ISO country code; RoofScan only continues for "in". */
+  countryCode?: string;
   state?: string;
   district?: string;
   label: string;

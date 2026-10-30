@@ -42,6 +42,30 @@ Capacity is the number of panels × 0.545 kW.
 If the capacity is above the sanctioned load on the bill, RoofScan warns that
 the DISCOM may ask for a load increase. It does not block the plan.
 
+## Eligibility
+
+From MNRE's operational guidelines for Central Financial Assistance (CFA) to
+residential consumers:
+
+- **Where**: every state and UT. An eligible consumer is anyone with a valid
+  consumer account number at their distribution utility (a DISCOM, or the
+  state's Power or Energy Department where there is no DISCOM). RoofScan
+  confirms the pinned location is in India by reverse geocoding, because
+  India's bounding box also covers parts of Pakistan, Nepal, Bhutan,
+  Bangladesh, Sri Lanka and Myanmar. Points at sea count as outside India.
+- **Who**: residential connections only; no CFA for government, commercial
+  or industrial connections.
+- **What**: grid-connected systems on a roof, terrace, balcony or elevated
+  structure, with DCR modules (made in India from Indian-made cells),
+  installed by a vendor registered on the national portal.
+- **Once**: CFA is paid once per installation. A household that already
+  received CFA for some capacity gets CFA only for the balance up to 3 kW
+  in total (see below).
+- **Until**: the scheme runs until 31 March 2027.
+
+The guidelines set no income limit and do not exclude government
+employees, despite claims on some websites.
+
 ## Subsidy
 
 Central Financial Assistance (CFA) for individual households under
@@ -58,6 +82,10 @@ PM Surya Ghar, as amended by MNRE in July 2025:
 - Capacity above 3 kW earns no further CFA. Fractional capacity is
   pro-rated at the same per-kW rates.
 - The subsidy is never shown as larger than the system's cost.
+- **Earlier subsidy**: if the household already received CFA for `p` kW,
+  the new system of `n` kW earns CFA(min(p + n, 3)) − CFA(min(p, 3)). The
+  guidelines' own example: 1 kW subsidised before, total raised to 4 kW,
+  CFA of ₹48,000 for the extra 2 kW. This is a unit test.
 - State top-up subsidies are not included.
 
 ## Cost
@@ -181,6 +209,7 @@ litres per year = roof area (m²) × annual rainfall (mm) × 0.8
 - BSES Delhi rooftop solar FAQ (Sep 2025): https://www.bsesdelhi.com/documents/55701/1611949183/RTS_FAQ_Sep25.pdf
 - TP Northern Odisha PM Surya Ghar FAQ: https://odia.tpnodl.com/Editor_UploadedDocuments/Content/FAQ_PM_Suryaghar_Muft_Bijli_Yojana__English.pdf
 - MSEDCL rooftop solar FAQ (10 m² per kW): https://www.mahadiscom.in/ismart/media/faq.pdf
+- MNRE operational guidelines, CFA to residential consumers (copy published by the Government of Delhi): https://solar.delhi.gov.in/public/assets/solar/PMSG_Guidelines_for_Residential_CFA_Capex_Mode.pdf
 - MNRE amended CFA guidelines, July 2025: https://www.mercomindia.com/mnre-revises-central-financial-assistance-norms-under-pm-surya-ghar-program
 - Rajya Sabha question 267, March 2025 (CFA table): https://rsdebate.nic.in/bitstream/123456789/759049/1/PQ_267_11032025_U1419_p455_p456.pdf
 - MSEDCL benchmark cost: https://powerpeakdigest.com/msedcl-sets-rs-45450-per-kw-benchmark-for-rooftop-solar/

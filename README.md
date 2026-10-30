@@ -23,7 +23,7 @@ SAM 3.1 and Muse Voice Transcribe.
 |---|---|
 | Bilingual site (English, Hindi) with language detection | Done |
 | Solar and rainwater calculation engine, NASA POWER solar data | Done |
-| Address search, satellite map and roof selection | Done |
+| Address search, satellite map and roof selection, limited to homes in India | Done |
 | Roof outline editor with obstacles and automatic panel layout | Done |
 | Upload your own roof photo where satellite imagery is too coarse, with scale calibration | Done |
 | Automatic roof and obstacle outlines with SAM 3.1 | Planned |

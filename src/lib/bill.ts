@@ -18,6 +18,8 @@ export const billSchema = z
     discom: z.string().trim().max(120).optional(),
     consumerNumber: z.string().trim().max(40).optional(),
     householdSize: z.number().int().min(1).max(30),
+    /** Rooftop solar the household already received a central subsidy for, kW. */
+    priorSubsidisedKw: z.number().min(0).max(100).optional(),
   })
   .refine((b) => (b.fixedChargesRupees ?? 0) < b.amountRupees, {
     path: ["fixedChargesRupees"],

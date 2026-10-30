@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { centralSubsidy, subsidyCategoryForState } from "./subsidy";
+import { centralSubsidy, subsidyAfterPrior, subsidyCategoryForState } from "./subsidy";
 
 describe("centralSubsidy", () => {
   it("pays ₹30,000 per kW for the first 2 kW and ₹18,000 for the third", () => {
@@ -43,5 +43,27 @@ describe("subsidyCategoryForState", () => {
     expect(subsidyCategoryForState("Maharashtra")).toBe("general");
     expect(subsidyCategoryForState("Delhi")).toBe("general");
     expect(subsidyCategoryForState(undefined)).toBe("general");
+  });
+});
+
+describe("subsidyAfterPrior", () => {
+  // Worked examples from MNRE's operational guidelines (section 5(n)).
+  it("pays only the balance up to 3 kW when 1 kW was subsidised before", () => {
+    // 1 kW subsidised earlier, total raised to 4 kW (3 kW new): CFA for 2 kW, ₹48,000.
+    expect(subsidyAfterPrior(3, 1)).toBe(48_000);
+  });
+
+  it("pays nothing once 3 kW has been subsidised", () => {
+    expect(subsidyAfterPrior(2, 3)).toBe(0);
+    expect(subsidyAfterPrior(2, 5)).toBe(0);
+  });
+
+  it("matches the normal subsidy with nothing subsidised before", () => {
+    expect(subsidyAfterPrior(2.5, 0)).toBe(69_000);
+    expect(subsidyAfterPrior(2.5, Number.NaN)).toBe(69_000);
+  });
+
+  it("uses the special category rates for the balance", () => {
+    expect(subsidyAfterPrior(3, 1, "special")).toBe(33_000 + 19_800);
   });
 });

@@ -7,6 +7,12 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ### Fixed
 
+- Locations outside India could be checked. The India bounding box also
+  covers parts of Pakistan, Nepal, Bhutan, Bangladesh, Sri Lanka and
+  Myanmar, so a pin in Lahore or Dhaka received a PM Surya Ghar plan. Each
+  pin is now confirmed to be in India by reverse geocoding before the
+  household can measure or upload; points at sea are rejected, and the map
+  is kept to the area around India.
 - The satellite map showed Esri's "Map data not yet available" tiles when
   zoomed in where Esri has no imagery at that level, as in much of rural
   India. The map now checks the service's tile map as the view changes and
@@ -14,6 +20,11 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ### Added
 
+- Eligibility rules from MNRE's operational guidelines: households that
+  already received a rooftop subsidy enter that capacity and get CFA only
+  for the balance up to 3 kW; the application guide says panels must be
+  DCR (made in India from Indian-made cells) and that the scheme ends on
+  31 March 2027.
 - "Use my own roof photo" for places where satellite imagery is too coarse:
   the household uploads a top-down photo (EXIF orientation respected,
   fitted into an 800 px square), marks a line of known length in metres or
