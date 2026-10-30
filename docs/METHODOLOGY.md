@@ -78,6 +78,46 @@ benchmark is ₹45,450 per kW. Households can enter their vendor's quote.
 - **Lifetime savings** are summed over 25 years with 0.5% yearly module
   degradation and no tariff increases.
 
+## Roof measurement
+
+- **Imagery**: Esri World Imagery. RoofScan asks the service's tile map for
+  the highest zoom with real imagery at the tapped point (19 in most cities,
+  18 in many rural areas) and stitches a 400 × 400 pixel square centred on
+  it. Zoom 17 and below are rejected as too coarse.
+- **Scale**: metres per pixel = 40,075,016.686 × cos(latitude) ÷ (256 × 2^zoom).
+  At zoom 19 in Pune that is 0.283 m, so the snapshot covers about 113 m.
+- **Area**: the outline's area in pixels (shoelace formula) × (metres per
+  pixel)². A one-pixel error along each edge of a 10 m × 10 m roof changes
+  the area by about 6%.
+
+## Panel layout
+
+- **Usable area**: the roof outline shrunk by a 0.6 m walkway along every
+  edge, minus each obstacle grown by 0.5 m of clearance.
+- **Mounting**: 545 W modules at a 15° tilt, in rows along one roof axis,
+  tilted towards the other. Rows follow the roof's walls rather than true
+  east-west, which costs at most a few per cent of output for roofs turned
+  less than 45°.
+- **Row spacing**: rows must not shade each other between 9:00 and 15:00
+  solar time on 21 December, the usual design rule for Indian rooftop
+  systems. The shadow cast towards the next row is
+
+  ```
+  height × cos(sun azimuth from south) ÷ tan(sun elevation)
+  ```
+
+  with the sun's position at 9:00 on the winter solstice. In Pune that adds
+  0.70 m behind each portrait row, giving rows 2.91 m apart.
+- **Packing**: the usable area is rasterised on a 5 cm grid. Portrait and
+  landscape mounting are both tried, each with row offsets in 20 cm steps;
+  panels are placed left to right in each row, and the arrangement with the
+  most panels wins.
+- **Compared with utility guidance**: utilities quote about 10 m² of roof per
+  kW, which allows for generous walkways and steeper tilts. RoofScan's layout
+  typically needs 6 to 7 m² per kW. Because RoofScan sizes the system to the
+  household's consumption, most homes are not limited by roof space; where
+  they are, a vendor's layout may hold fewer panels.
+
 ## Rainwater
 
 ```
@@ -92,8 +132,8 @@ litres per year = roof area (m²) × annual rainfall (mm) × 0.8
 ## Known limitations
 
 - Shading from trees and neighbouring buildings is not modelled.
-- Roof tilt and orientation are not modelled. Indian residential roofs are
-  mostly flat.
+- Sloped roofs are measured as their flat plan area. Indian residential
+  roofs are mostly flat.
 - These are estimates. The final design comes from a registered vendor's site
   survey and the DISCOM's approval.
 

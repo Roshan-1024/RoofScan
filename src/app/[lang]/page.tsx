@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDictionary, isLocale } from "@/i18n";
 import { SiteHeader } from "@/components/site-header";
@@ -20,6 +21,12 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
               {dict.hero.title}
             </h1>
             <p className="mt-4 text-lg leading-relaxed text-muted">{dict.hero.body}</p>
+            <Link
+              href={`/${lang}/check`}
+              className="mt-6 inline-flex items-center rounded-full bg-primary px-6 py-3 text-base font-semibold text-primary-ink hover:opacity-90"
+            >
+              {dict.hero.cta}
+            </Link>
             <p className="mt-4 text-sm font-medium text-muted">{dict.hero.note}</p>
           </div>
           <RoofIllustration className="mx-auto w-full max-w-sm" />

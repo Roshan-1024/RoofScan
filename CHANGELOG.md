@@ -7,6 +7,20 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ### Added
 
+- Roof check flow at `/[lang]/check`: address search, "use my location" and
+  a satellite map to tap the roof; an exact-scale snapshot at the best
+  available zoom; and an outline editor for the roof and obstacles with
+  draggable corners.
+- Automatic panel layout (`layoutPanels()`): 0.6 m edge walkways, 0.5 m
+  obstacle clearance, 15° tilt, rows shade-free from 9:00 to 15:00 on the
+  winter solstice, portrait and landscape both tried. Shows roof area,
+  usable area, panel count and the largest system that fits.
+- Esri World Imagery loaded directly in the browser, using the service's
+  tile map to skip zoom levels without imagery.
+- `GET /api/geocode` and `GET /api/region`, backed by OpenStreetMap
+  Nominatim within its usage policy, with per-client rate limiting.
+- "Check my roof" button on the landing page; the language switch now stays
+  on the current page.
 - Calculation engine (`src/lib/engine/`): system sizing from consumption and
   roof capacity, monthly generation from NASA POWER irradiance, PM Surya Ghar
   central subsidy including special category rates, cost, net-metered

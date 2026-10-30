@@ -23,8 +23,10 @@ SAM 3.1 and Muse Voice Transcribe.
 |---|---|
 | Bilingual site (English, Hindi) with language detection | Done |
 | Solar and rainwater calculation engine, NASA POWER solar data | Done |
-| Roof selection on satellite imagery, with an upload fallback | Planned |
-| Roof and obstacle segmentation with SAM 3.1 | Planned |
+| Address search, satellite map and roof selection | Done |
+| Roof outline editor with obstacles and automatic panel layout | Done |
+| Upload your own roof photo where satellite imagery is too coarse | Planned |
+| Automatic roof and obstacle outlines with SAM 3.1 | Planned |
 | Electricity bill reading with Muse Spark | Planned |
 | Results, application checklist and PDF report | Planned |
 | Voice questions with Muse Voice Transcribe | Planned |
@@ -72,7 +74,12 @@ src/
   i18n/              Locale config, Accept-Language negotiation, dictionaries
   lib/engine/        Solar, subsidy and rainwater calculations (pure functions)
   lib/data/          Clients for external data sources
-  lib/geo/           Geographic helpers
+  lib/geo/           Web Mercator tiles and India bounds
+  lib/geometry/      Polygon area, rotation and orientation
+  lib/imagery/       Esri World Imagery tiles and roof snapshots (browser)
+  lib/layout/        Panel layout on a roof outline
+  lib/security/      Rate limiting
+  components/check/  The roof check flow
   proxy.ts           Redirects unprefixed paths to the preferred locale
 docs/                Architecture, privacy and methodology notes
 ```
@@ -86,6 +93,8 @@ source behind the numbers.
 | Route | Returns |
 |---|---|
 | `GET /api/solar-resource?lat=&lon=` | Monthly solar irradiance for a location in India (NASA POWER) |
+| `GET /api/geocode?q=&lang=` | Up to five places in India matching an address (OpenStreetMap Nominatim) |
+| `GET /api/region?lat=&lon=` | State and district for a location in India |
 
 ## Privacy
 
@@ -98,7 +107,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Data and attribution
 
-- Satellite imagery: Esri World Imagery (attribution shown on the map).
+- Satellite imagery: Powered by Esri. Imagery: Esri, Maxar, Earthstar
+  Geographics, and the GIS User Community (shown on the map and snapshot).
 - Geocoding: © OpenStreetMap contributors, via Nominatim.
 - Solar resource: NASA POWER.
 

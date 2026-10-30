@@ -40,6 +40,18 @@ export const DEFAULT_COST_PER_KW = 55_000;
  */
 export const DEFAULT_EXPORT_RATE_PER_KWH = 0;
 
+/** Clear walkway kept along roof edges for installation, maintenance and wind loads. */
+export const EDGE_SETBACK_M = 0.6;
+
+/** Clear space kept around water tanks, stair rooms and other obstacles. */
+export const OBSTACLE_CLEARANCE_M = 0.5;
+
+/** Panel tilt on flat-roof mounting structures, facing roughly south. */
+export const PANEL_TILT_DEG = 15;
+
+/** Gap between neighbouring panels in a row. */
+export const MODULE_GAP_M = 0.02;
+
 /** Rule of thumb from utility FAQs: about 10 m² of shadow-free roof per kW. */
 export const AREA_PER_KW_M2 = 10;
 

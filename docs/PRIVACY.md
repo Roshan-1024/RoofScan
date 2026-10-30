@@ -26,9 +26,17 @@ A household's report stays in their browser until they download it.
 | Service | What it receives | Why |
 |---|---|---|
 | Meta Model API | Roof image tiles, bill photos, voice recordings | Segmentation, bill reading, transcription |
-| Esri World Imagery | Map tile requests (location and the visitor's IP address) | Satellite imagery |
-| OpenStreetMap Nominatim | Address searches and coordinates | Geocoding |
+| Esri World Imagery | Map tile requests, sent directly from the visitor's browser (location and IP address) | Satellite imagery |
+| OpenStreetMap Nominatim | Address searches and coordinates, sent from RoofScan's server, so the visitor's IP address is not shared | Geocoding |
 | NASA POWER | Coordinates | Solar resource data |
+
+## Caches
+
+To respect rate limits, RoofScan's servers keep recent results in memory:
+address searches and region lookups for one day, solar data for a week.
+These caches hold search text and coordinates, never bills, photos or
+names. They are never written to disk and disappear when the server
+restarts.
 
 ## In the repository
 
