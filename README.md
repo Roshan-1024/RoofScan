@@ -22,7 +22,7 @@ SAM 3.1 and Muse Voice Transcribe.
 | Feature | State |
 |---|---|
 | Bilingual site (English, Hindi) with language detection | Done |
-| Solar and rainwater calculation engine | Planned |
+| Solar and rainwater calculation engine, NASA POWER solar data | Done |
 | Roof selection on satellite imagery, with an upload fallback | Planned |
 | Roof and obstacle segmentation with SAM 3.1 | Planned |
 | Electricity bill reading with Muse Spark | Planned |
@@ -67,13 +67,25 @@ npm run dev                  # http://localhost:3000
 ```
 src/
   app/[lang]/        Pages, rendered per locale (en, hi)
+  app/api/           API routes (server only)
   components/        Shared UI components
   i18n/              Locale config, Accept-Language negotiation, dictionaries
+  lib/engine/        Solar, subsidy and rainwater calculations (pure functions)
+  lib/data/          Clients for external data sources
+  lib/geo/           Geographic helpers
   proxy.ts           Redirects unprefixed paths to the preferred locale
 docs/                Architecture, privacy and methodology notes
 ```
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the pieces fit.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the pieces fit and
+[docs/METHODOLOGY.md](docs/METHODOLOGY.md) for every formula, assumption and
+source behind the numbers.
+
+### API
+
+| Route | Returns |
+|---|---|
+| `GET /api/solar-resource?lat=&lon=` | Monthly solar irradiance for a location in India (NASA POWER) |
 
 ## Privacy
 

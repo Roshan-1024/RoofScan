@@ -1,0 +1,36 @@
+{
+  "type": "Feature",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      73.857,
+      18.52,
+      635.99
+    ]
+  },
+  "properties": {
+    "parameter": {
+      "ALLSKY_SFC_SW_DWN": {
+        "JAN": 4.9891,
+        "FEB": 5.8502,
+        "MAR": 6.6137,
+        "APR": 7.0778,
+        "MAY": 7.0174,
+        "JUN": 4.5682,
+        "JUL": 3.3101,
+        "AUG": 3.3838,
+        "SEP": 4.3092,
+        "OCT": 5.0119,
+        "NOV": 4.896,
+        "DEC": 4.6649,
+        "ANN": 5.1348
+      }
+    }
+  },
+  "parameters": {
+    "ALLSKY_SFC_SW_DWN": {
+      "units": "kW-hr/m^2/day",
+      "longname": "All Sky Surface Shortwave Downward Irradiance"
+    }
+  }
+}

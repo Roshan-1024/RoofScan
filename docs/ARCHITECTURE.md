@@ -30,3 +30,25 @@ API routes live in the same project and deploy together.
 Tailwind CSS v4. Colours are CSS variables in `src/app/globals.css`, mapped to
 utilities through `@theme inline`, with a dark palette under
 `prefers-color-scheme: dark`.
+
+## Calculation engine
+
+`src/lib/engine/` holds pure functions with no I/O, so the same code runs on
+the server and in the browser and is fully unit-tested.
+
+- `assumptions.ts`: every constant, with its source.
+- `subsidy.ts`: PM Surya Ghar central subsidy, including the special
+  category rates.
+- `solar.ts`: `planSolar()` sizes the system, then works out generation,
+  cost, subsidy, savings, payback and lifetime savings.
+- `rainwater.ts`: litres a year the roof can collect.
+
+docs/METHODOLOGY.md explains the formulas.
+
+## External data
+
+- `src/lib/data/nasa-power.ts` (server only) fetches monthly irradiance from
+  NASA POWER, validates the response with zod, rejects NASA's fill value, and
+  caches results in memory per 0.05° grid cell for seven days.
+- `GET /api/solar-resource` exposes it to the browser. It accepts only
+  coordinates inside India and returns 502 when NASA POWER is unavailable.
