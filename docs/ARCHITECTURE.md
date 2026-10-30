@@ -16,6 +16,17 @@ API routes live in the same project and deploy together.
 - `src/i18n/negotiate.ts` parses the `Accept-Language` header. It ranks
   entries by q-value, maps regional tags like `hi-IN` to `hi`, and falls back
   to English.
+- Unknown paths under a locale, such as `/en/pricing`, match
+  `src/app/[lang]/[...missing]/page.tsx`, which calls `notFound()`. The
+  localized not-found page then renders inside the root layout with a 404
+  status and the right `<html lang>`, instead of the framework's bare 404.
+- `src/app/[lang]/error.tsx` catches pages that crash while rendering. It
+  offers "Try again" and "Start a new check"; the second also clears saved
+  progress, so a saved step that no longer renders can't return on every
+  reload. Its text lives in `src/i18n/error-messages.ts`, apart from the
+  dictionaries, to keep the boundary small.
+- `src/app/robots.ts` serves `/robots.txt`, allowing pages and excluding the
+  API.
 
 ## Translations
 
@@ -103,7 +114,13 @@ details never leave the browser.
 - Progress (step, snapshot, outline, bill) is saved to `sessionStorage`, so
   a reload keeps it. It stays in that tab and is cleared when the tab
   closes. "Start a new check" resets it. `CheckFlowLoader` renders the flow
-  on the client only, which lets it read storage while initialising.
+  on the client only, which lets it read storage while initialising. The
+  storage key and `clearSavedProgress()` live in `saved-progress.ts`, which
+  the error boundary also uses.
+- `monthly-chart.tsx` measures its own width with a `ResizeObserver` and
+  draws at that size, so axis text stays at its real size on phones instead
+  of being scaled down with the SVG. Below 32 px per month it labels every
+  other month; the table view lists all twelve.
 - The report (`report-sheet.tsx`) is hidden on screen and shown only when
   printing, while the site header, footer and the interactive plan are
   hidden. "Download report (PDF)" opens the browser's print dialog, whose
@@ -150,5 +167,24 @@ exposes it, limited to India and rate limited like the other routes.
 - `GET /api/geocode` searches places in India. `GET /api/region` returns
   the state and district for a coordinate, always in English so state
   names match the subsidy rules.
-- `src/lib/security/rate-limit.ts` limits each client to 20 requests per
-  10 minutes on these routes.
+- `src/lib/security/rate-limit.ts` limits each client per 10 minutes: 20
+  searches, 60 region lookups (one per pin drop) and 20 rainfall lookups.
+
+## Security headers
+
+`next.config.ts` sends these headers on every response, and turns off
+`X-Powered-By`:
+
+- `Content-Security-Policy`: scripts, styles, fonts and requests stay on
+  the site's own origin, except Esri imagery (`img-src` and `connect-src`
+  allow `https://server.arcgisonline.com`). Images may also be `data:` and
+  `blob:` URLs, for roof snapshots and uploaded photos. Plugins, framing
+  (`frame-ancestors 'none'`), other base URLs and form posts elsewhere are
+  blocked. Scripts need `'unsafe-inline'` because Next.js inlines small
+  scripts; a nonce would force every page to render per request.
+- `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` and
+  `Referrer-Policy: strict-origin-when-cross-origin`.
+- `Permissions-Policy`: geolocation (for "Use my location") and microphone
+  (for spoken questions) on this origin only; camera, payment and USB off.
+
+HSTS is left to the host, which serves HTTPS.

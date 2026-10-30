@@ -25,14 +25,14 @@ export function SiteHeader({
           <Logo className="h-7 w-7" />
           <span className="text-lg tracking-tight">RoofScan</span>
         </Link>
+        {/* The accessible name keeps the visible language name, so voice control users can say it. */}
         <Link
           href={`/${other.locale}${path}`}
           hrefLang={other.locale}
-          lang={other.locale}
-          aria-label={dict.nav.switchLanguage}
           className="rounded-full border border-border px-3 py-1.5 text-sm font-medium hover:bg-surface-muted"
         >
-          {other.nativeName}
+          <span className="sr-only">{dict.nav.switchLanguage}: </span>
+          <span lang={other.locale}>{other.nativeName}</span>
         </Link>
       </div>
     </header>

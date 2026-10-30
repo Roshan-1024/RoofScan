@@ -39,4 +39,13 @@ describe("bill", () => {
     expect(billSchema.safeParse({ ...bill, fixedChargesRupees: 5000 }).success).toBe(false);
     expect(billSchema.safeParse({ ...bill, householdSize: 0 }).success).toBe(false);
   });
+
+  it("only flags fixed charges against a valid bill amount", () => {
+    const paths = (candidate: object) =>
+      billSchema.safeParse(candidate).error?.issues.map((issue) => issue.path.join("."));
+    // An empty form: the amount is missing, the optional fixed charges are not wrong.
+    expect(paths({ ...bill, amountRupees: 0, fixedChargesRupees: undefined })).toEqual(["amountRupees"]);
+    expect(paths({ ...bill, amountRupees: Number.NaN, fixedChargesRupees: 240 })).toEqual(["amountRupees"]);
+    expect(paths({ ...bill, amountRupees: 200, fixedChargesRupees: 240 })).toEqual(["fixedChargesRupees"]);
+  });
 });

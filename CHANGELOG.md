@@ -5,7 +5,35 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ## [Unreleased]
 
+### Security
+
+- Every response now carries a Content-Security-Policy that keeps scripts,
+  styles, fonts and requests on RoofScan's own origin (plus Esri imagery)
+  and forbids framing, along with `X-Content-Type-Options`,
+  `X-Frame-Options`, `Referrer-Policy` and `Permissions-Policy` headers.
+  The `X-Powered-By` header is no longer sent.
+
 ### Fixed
+
+- A crash while rendering showed the framework's English-only "This page
+  couldn't load" screen, and reloading brought the same saved step back,
+  so damaged progress (for example from an older version) locked the
+  household out until the tab was closed. A bilingual error screen now
+  offers "Try again" and "Start a new check", which clears saved progress.
+- Submitting the bill form with the amount empty also showed "Fixed charges
+  must be less than the bill amount" under the empty, optional fixed
+  charges field. That check now runs only once the amount is valid.
+- On phones the monthly generation chart was scaled down with the screen,
+  shrinking its axis and month labels to about 5 px. The chart now draws at
+  its measured width, keeping text at 11 px, and labels every other month
+  when space is short.
+- Unknown addresses such as `/en/pricing` showed the framework's bare 404
+  page with no language set. They now show RoofScan's not-found page in
+  the site layout, still with a 404 status.
+- The language switch link's accessible name ("Switch language") did not
+  include its visible text ("English" or "हिन्दी"), so voice control users
+  could not activate it by saying what they saw. The name now reads, for
+  example, "Switch language: हिन्दी".
 
 - Locations outside India could be checked. The India bounding box also
   covers parts of Pakistan, Nepal, Bhutan, Bangladesh, Sri Lanka and
@@ -20,6 +48,7 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ### Added
 
+- `/robots.txt`, allowing pages and excluding the API.
 - Eligibility rules from MNRE's operational guidelines: households that
   already received a rooftop subsidy enter that capacity and get CFA only
   for the balance up to 3 kW; the application guide says panels must be

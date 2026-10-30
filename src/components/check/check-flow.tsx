@@ -8,6 +8,7 @@ import { BillForm } from "./bill-form";
 import { FindHouse } from "./find-house";
 import { PlanView } from "./plan-view";
 import { RoofEditor } from "./roof-editor";
+import { PROGRESS_KEY } from "./saved-progress";
 import type { RainfallData, Region, RoofState, SiteResources } from "./types";
 
 interface SelectedSite {
@@ -25,16 +26,11 @@ interface Progress {
   bill: BillDetails | null;
 }
 
-/**
- * Progress lives in sessionStorage: it survives a reload, stays in this tab
- * only, and is cleared when the tab closes. Nothing is sent to a server.
- */
-const STORAGE_KEY = "roofscan:check:v1";
 const EMPTY: Progress = { step: 0, site: null, roofState: null, bill: null };
 
 function readProgress(): Progress {
   try {
-    const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? "null") as Progress | null;
+    const saved = JSON.parse(sessionStorage.getItem(PROGRESS_KEY) ?? "null") as Progress | null;
     if (saved && typeof saved.step === "number" && saved.step >= 0 && saved.step <= 3) {
       // Sessions saved before uploads existed only had satellite imagery.
       if (saved.site && !saved.site.snapshot.source) saved.site.snapshot.source = "esri";
@@ -50,7 +46,7 @@ function readProgress(): Progress {
 
 function saveProgress(progress: Progress) {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    sessionStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
   } catch {
     // Storage full or blocked: progress just won't survive a reload.
   }

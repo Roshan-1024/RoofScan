@@ -21,7 +21,9 @@ export const billSchema = z
     /** Rooftop solar the household already received a central subsidy for, kW. */
     priorSubsidisedKw: z.number().min(0).max(100).optional(),
   })
-  .refine((b) => (b.fixedChargesRupees ?? 0) < b.amountRupees, {
+  // Only compared once the amount itself is valid, so an empty form doesn't
+  // also flag the optional fixed charges.
+  .refine((b) => !(b.amountRupees > 0) || (b.fixedChargesRupees ?? 0) < b.amountRupees, {
     path: ["fixedChargesRupees"],
     message: "fixed charges must be less than the bill amount",
   });
