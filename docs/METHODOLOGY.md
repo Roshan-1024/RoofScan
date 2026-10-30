@@ -167,6 +167,25 @@ benchmark is ₹45,450 per kW. Households can enter their vendor's quote.
   Water tanks are only 4 to 5 pixels across at zoom 19, too small to
   segment reliably, so obstacles are still outlined by hand.
 
+## Answers to questions
+
+- Every number in an answer comes from RoofScan's engine, not from the
+  model's own arithmetic: the household's plan is recalculated on the
+  server from the plan's inputs, and "what if" sizes go through the
+  `calculate_plan` tool, which runs `planSolar()` for that panel count.
+  A size in kW becomes the nearest whole number of 545 W panels, within
+  what fits on the roof.
+- Scheme facts given to the model are the same as in this document: the
+  CFA rates and caps, residential connections only, one subsidy per
+  household, DCR panels, the application steps and the 31 March 2027
+  deadline.
+- Checked with `npm run eval:assistant` on the Pune example plan: payback
+  (2.5 years), a 3 kW what-if in Hindi (6 panels, ₹78,000 subsidy,
+  ₹1,01,850 after subsidy), a change request (a `setPanels` action), a
+  Hinglish subsidy question (₹63,240), how the subsidy is paid (into the
+  bank account), rainwater, and an off-topic question that is declined.
+  Recent runs passed all seven, at about US$0.005 per question.
+
 ## Panel layout
 
 - **Usable area**: the roof outline shrunk by a 0.6 m walkway along every

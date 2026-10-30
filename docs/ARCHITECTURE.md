@@ -196,6 +196,37 @@ details never leave the browser.
   synthetic bills in `__fixtures__` with the real API and prints a table of
   results, tokens and cost. It is not part of `npm test`.
 
+## Questions about the plan
+
+- `ask-panel.tsx` sits under the recommended system. Households speak
+  ("Ask by voice", up to 45 seconds), type, or tap a suggested question.
+  `src/lib/audio/record.ts` records with `MediaRecorder`, decodes the
+  recording and resamples it to mono 16 kHz with an `OfflineAudioContext`,
+  and `encodeWav()` writes 16-bit PCM WAV, the format Muse Voice Transcribe
+  takes. The microphone is released when recording stops or the page
+  closes; `Permissions-Policy` allows it on this origin only.
+- With each question the panel sends the plan's inputs (`PlanContext` in
+  `src/lib/assistant/context.ts`): state, roof area, panels that fit,
+  yearly use, price per unit, sanctioned load, connection type, household
+  size, monthly sunlight, cost per kW, the current panel count and
+  rainfall. Never the consumer number, address or coordinates.
+- `POST /api/ask` validates the body (3 MB, 20 questions per client per
+  10 minutes, daily model cap). A recording must be mono 16-bit PCM WAV at
+  16 or 24 kHz and at most 60 seconds (`readWavInfo()`); it is transcribed
+  by `src/lib/meta/transcribe.ts` (Muse Voice Transcribe, biased to Hindi
+  and English, with solar keywords).
+- `src/lib/meta/ask.ts` asks Muse Spark 1.3 with instructions built by
+  `src/lib/assistant/prompt.ts`: the scheme's rules, RoofScan's
+  assumptions, and the household's plan worked out on the server by
+  `planFacts()` with the same engine as the page. Two tools run that engine
+  again: `calculate_plan` for "what if" sizes and `update_plan` when the
+  household asks to change their plan, which comes back as a `setPanels`
+  action the page applies. After three tool rounds the model is asked
+  without tools, so it must answer.
+- Answers are short, in the question's language, and decline anything
+  outside rooftop solar, the plan, the scheme, net metering and rainwater.
+  `npm run eval:assistant` checks this against the real API.
+
 ## Imagery
 
 `src/lib/imagery/esri.ts` loads Esri World Imagery tiles directly in the

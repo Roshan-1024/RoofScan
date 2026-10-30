@@ -7,6 +7,7 @@ import { DEFAULT_COST_PER_KW, estimateRainwater, planSolar, subsidyCategoryForSt
 import { fill, formatNumber, formatRupees } from "@/lib/format";
 import type { RoofSnapshot } from "@/lib/imagery/esri";
 import { ApplyGuide } from "./apply-guide";
+import { AskPanel } from "./ask-panel";
 import { MonthlyChart } from "./monthly-chart";
 import { ReportSheet } from "./report-sheet";
 import { RoofFigure } from "./roof-figure";
@@ -193,6 +194,29 @@ export function PlanView({
             ))}
           </ul>
         )}
+
+        <AskPanel
+          locale={locale}
+          dict={checkDict.ask}
+          context={{
+            state: region?.state,
+            subsidyCategory,
+            roofAreaM2: roofState.layout.roofAreaM2,
+            usableAreaM2: roofState.layout.usableAreaM2,
+            maxPanels,
+            annualConsumptionKwh: annualUse,
+            tariffPerKwh: tariffPerKwh(bill),
+            sanctionedLoadKw: bill.sanctionedLoadKw,
+            residential: bill.residential,
+            priorSubsidisedKw: bill.priorSubsidisedKw,
+            householdSize: bill.householdSize,
+            monthlyGhi: resources.monthlyGhi,
+            costPerKw,
+            panels: plan.panels,
+            rainfallMm,
+          }}
+          onSetPanels={(panels) => setPanelsOverride(Math.min(Math.max(panels, 1), maxPanels))}
+        />
 
         <div className="grid gap-6 lg:grid-cols-2">
           <Card title={dict.costTitle}>

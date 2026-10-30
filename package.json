@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "npm run lint && npm run typecheck && npm run test",
-    "eval:bills": "vitest run --config vitest.eval.config.mts src/lib/bill-reading"
+    "eval:bills": "vitest run --config vitest.eval.config.mts src/lib/bill-reading",
+    "eval:assistant": "vitest run --config vitest.eval.config.mts src/lib/assistant"
   },
   "dependencies": {
     "@meta-sam/parser": "0.1.0",

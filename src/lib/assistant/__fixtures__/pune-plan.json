@@ -1,0 +1,16 @@
+{
+  "state": "Maharashtra",
+  "subsidyCategory": "general",
+  "roofAreaM2": 122,
+  "usableAreaM2": 97,
+  "maxPanels": 27,
+  "annualConsumptionKwh": 2880,
+  "tariffPerKwh": 7.75,
+  "sanctionedLoadKw": 3,
+  "residential": true,
+  "householdSize": 4,
+  "monthlyGhi": [4.9891, 5.8502, 6.6137, 7.0778, 7.0174, 4.5682, 3.3101, 3.3838, 4.3092, 5.0119, 4.896, 4.6649],
+  "costPerKw": 55000,
+  "panels": 4,
+  "rainfallMm": 1101
+}

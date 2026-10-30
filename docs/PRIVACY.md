@@ -35,14 +35,20 @@ new check.
   photo) and the tapped pixel are sent to RoofScan's server and on to Meta
   SAM 3.1, in memory, for that one request. Coordinates are not sent with
   it. The image is not written to disk or logs.
-- Bill details typed into the form stay in the browser. The plan is
-  calculated there, and the details are never sent to RoofScan's servers.
+- A spoken question is recorded only while "Ask by voice" is on, sent once
+  to Muse Voice Transcribe to turn it into text, and discarded. Questions
+  go to Muse Spark with the plan's inputs (roof area, yearly use, price per
+  unit, sunlight, state and similar), never the consumer number, address
+  or coordinates. Neither is stored or logged.
+- Bill details typed into the form stay in the browser, and the plan is
+  calculated there. Only when the household asks a question are the plan's
+  inputs sent, as described above.
 
 ## Third parties that receive data
 
 | Service | What it receives | Why |
 |---|---|---|
-| Meta Model API | Roof images (the 400 px satellite snapshot or the household's photo) and the tapped pixel; bill photos; voice recordings | Roof outlines (SAM 3.1), bill reading, transcription |
+| Meta Model API | Roof images (the 400 px satellite snapshot or the household's photo) and the tapped pixel; bill photos; voice recordings; questions with the plan's inputs | Roof outlines (SAM 3.1), bill reading and answers (Muse Spark), transcription (Muse Voice Transcribe) |
 | Esri World Imagery | Map tile requests, sent directly from the visitor's browser (location and IP address) | Satellite imagery |
 | OpenStreetMap Nominatim | Address searches, and pinned coordinates rounded to about 100 m, sent from RoofScan's server, so the visitor's IP address is not shared | Geocoding and confirming the location is in India |
 | NASA POWER | Coordinates | Solar resource data |

@@ -7,6 +7,24 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ### Added
 
+- "Ask about your plan": households speak or type a question in Hindi or
+  English, or tap a suggestion, and get a short answer in the same
+  language. Speech is recorded in the browser, converted to 16 kHz WAV and
+  transcribed by Muse Voice Transcribe; Muse Spark 1.3 answers from the
+  plan, which the server recalculates with RoofScan's own engine. Tools let
+  it work out another size ("What if I install 3 kW?") and change the plan
+  on screen when asked ("Change my plan to 5 panels"). Questions outside
+  solar, the plan, the scheme, net metering and rainwater are declined.
+  Messages cover a blocked microphone, unclear audio, busy and failed
+  requests.
+- `POST /api/ask`: question or WAV recording (checked to be mono 16-bit
+  PCM at 16 or 24 kHz, at most 60 s), 3 MB limit, 20 questions per client
+  per 10 minutes, daily model cap.
+- `npm run eval:assistant`: seven questions about the Pune example plan in
+  Hindi, English and Hinglish, checked for language, numbers from the
+  engine, tool calls and staying on topic. Recent runs: 7 of 7, about
+  US$0.005 per question.
+
 - "Read my bill": a photo or PDF of the electricity bill fills the bill
   form. Muse Spark 1.3 reads the units, charges for the period, fixed
   charges, sanctioned load, connection type, company, consumer number and
@@ -55,6 +73,9 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ### Fixed
 
+- With an outline already drawn, "Draw by hand" only said "Drag a corner to
+  adjust it", leaving households who wanted to redraw stuck. It now adds
+  that "Start again" draws a new outline.
 - File pickers ("Choose a photo", "Take a photo or choose a file") showed no
   focus ring for keyboard users, because the visually hidden input sat
   outside its label. The input is now inside the label, and the label

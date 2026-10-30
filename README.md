@@ -34,7 +34,7 @@ SAM 3.1 and Muse Voice Transcribe.
 | Application guide with the details to enter on the PM Surya Ghar portal | Done |
 | Two-page report, saved as PDF from the browser, in English or Hindi | Done |
 | Progress kept across a reload, in this browser tab only | Done |
-| Voice questions with Muse Voice Transcribe | Planned |
+| Questions about the plan, spoken or typed, in Hindi or English: Muse Voice Transcribe and Muse Spark, with answers from RoofScan's own engine | Done |
 
 [CHANGELOG.md](CHANGELOG.md) records what each change added.
 
@@ -69,6 +69,7 @@ npm run dev                  # http://localhost:3000
 | `npm run typecheck` | Generate route types and run the TypeScript compiler |
 | `npm run test` | Unit tests (Vitest) |
 | `npm run check` | Lint, typecheck and test; run before every commit |
+| `npm run eval:assistant` | Asks Muse Spark seven questions about an example plan (Hindi, English, Hinglish, off-topic) and checks the language, the numbers and the tool calls. Calls the real API, about US$0.04 |
 | `npm run eval:bills` | Reads the synthetic bills in `src/lib/bill-reading/__fixtures__` with Muse Spark and reports accuracy and cost. Calls the real API: needs `MODEL_API_KEY`, costs about US$0.09 |
 
 ## Project structure
@@ -85,8 +86,10 @@ src/
   lib/geometry/      Polygon area, rotation and orientation
   lib/imagery/       Esri World Imagery tiles and roof snapshots (browser)
   lib/layout/        Panel layout on a roof outline
+  lib/assistant/     Plan context, scheme facts, instructions and tools for questions
+  lib/audio/         Microphone recording and 16 kHz WAV encoding
   lib/bill-reading/  Bill reading: schema, instructions, checks; synthetic test bills
-  lib/meta/          Meta Model API client, SAM 3.1 and Muse Spark calls (server only)
+  lib/meta/          Meta Model API client: SAM 3.1, Muse Spark, Muse Voice Transcribe (server only)
   lib/segmentation/  Segmentation masks to editable roof outlines
   lib/security/      Rate limits, daily model cap, request body limits
   components/check/  The roof check flow
@@ -108,6 +111,7 @@ source behind the numbers.
 | `GET /api/rainfall?lat=&lon=` | Average annual rainfall for a location in India (ECMWF IFS via Open-Meteo) |
 | `POST /api/roof/outline` | Outline of the roof under a tapped point in a roof image (Meta SAM 3.1). Body: `{ image, size, point }` |
 | `POST /api/bill/read` | Bill form values read from an electricity bill photo or PDF (Muse Spark 1.3). Body: `{ file }` |
+| `POST /api/ask` | Answer to a typed or spoken question about a plan (Muse Voice Transcribe, Muse Spark 1.3 with tools). Body: `{ question \| audio, locale, context }` |
 
 ## Privacy
 
