@@ -26,7 +26,7 @@ SAM 3.1 and Muse Voice Transcribe.
 | Address search, satellite map and roof selection, limited to homes in India | Done |
 | Roof outline editor with obstacles and automatic panel layout | Done |
 | Upload your own roof photo where satellite imagery is too coarse, with scale calibration | Done |
-| Automatic roof and obstacle outlines with SAM 3.1 | Planned |
+| Automatic roof outline with Meta SAM 3.1: tap the roof, check and adjust the corners | Done |
 | Bill details form, with yearly use and price per unit derived from it | Done |
 | Solar plan: system size, cost after subsidy, savings, payback, monthly chart | Done |
 | Rainwater estimate from the same roof | Done |
@@ -52,7 +52,8 @@ npm run dev                  # http://localhost:3000
 
 | Variable | Used for |
 |---|---|
-| `MODEL_API_KEY` | Meta Model API key, used only on the server |
+| `MODEL_API_KEY` | Meta Model API key, used only on the server. Without it, automatic outlining is off and households draw the roof by hand |
+| `MODEL_DAILY_REQUEST_LIMIT` | Optional. Model requests allowed per UTC day on one server instance, across all visitors (default 2000) |
 | `NOMINATIM_CONTACT_EMAIL` | Contact address sent to OpenStreetMap Nominatim, as its usage policy requires |
 
 `.env.local` is gitignored. Never commit real keys.
@@ -83,7 +84,9 @@ src/
   lib/geometry/      Polygon area, rotation and orientation
   lib/imagery/       Esri World Imagery tiles and roof snapshots (browser)
   lib/layout/        Panel layout on a roof outline
-  lib/security/      Rate limiting
+  lib/meta/          Meta Model API client and SAM 3.1 calls (server only)
+  lib/segmentation/  Segmentation masks to editable roof outlines
+  lib/security/      Rate limits, daily model cap, request body limits
   components/check/  The roof check flow
   proxy.ts           Redirects unprefixed paths to the preferred locale
 docs/                Architecture, privacy and methodology notes
@@ -101,11 +104,13 @@ source behind the numbers.
 | `GET /api/geocode?q=&lang=` | Up to five places in India matching an address (OpenStreetMap Nominatim) |
 | `GET /api/region?lat=&lon=` | State and district for a location in India |
 | `GET /api/rainfall?lat=&lon=` | Average annual rainfall for a location in India (ECMWF IFS via Open-Meteo) |
+| `POST /api/roof/outline` | Outline of the roof under a tapped point in a roof image (Meta SAM 3.1). Body: `{ image, size, point }` |
 
 ## Privacy
 
-RoofScan stores nothing on its servers and uses no analytics. Bill photos are
-processed in memory and discarded. See [docs/PRIVACY.md](docs/PRIVACY.md).
+RoofScan stores nothing on its servers and uses no analytics. Roof images
+sent for automatic outlining, and bill photos, are processed in memory and
+discarded. See [docs/PRIVACY.md](docs/PRIVACY.md).
 
 ## Contributing
 
@@ -122,3 +127,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 ## License
 
 MIT, see [LICENSE](LICENSE). Third-party packages keep their own licenses.
+`@meta-sam/parser`, which reads SAM 3.1 responses, is distributed by Meta
+under the [SAM License](https://github.com/meta-models/meta-sam/blob/main/LICENSE).

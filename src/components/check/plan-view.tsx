@@ -141,13 +141,18 @@ export function PlanView({
           className="grid gap-5 rounded-2xl border border-border bg-primary-soft p-5 sm:grid-cols-[200px_1fr]"
           aria-live="polite"
         >
-          <RoofFigure
-            snapshot={snapshot}
-            roofState={roofState}
-            panelCount={plan.panels}
-            label={checkDict.report.roofSection}
-            className="w-full rounded-xl"
-          />
+          <figure>
+            <RoofFigure
+              snapshot={snapshot}
+              roofState={roofState}
+              panelCount={plan.panels}
+              label={checkDict.report.roofSection}
+              className="w-full rounded-xl"
+            />
+            {roofState.outlinedBy === "sam" && (
+              <figcaption className="mt-1 text-xs text-muted">{checkDict.roof.outlinedBySam}</figcaption>
+            )}
+          </figure>
           <div>
             <h2 className="text-sm font-semibold text-primary">{dict.recommended}</h2>
             <div className="mt-2 flex flex-wrap items-center gap-4">

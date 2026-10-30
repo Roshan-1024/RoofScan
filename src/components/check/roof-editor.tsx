@@ -1,15 +1,35 @@
 "use client";
 
-import { useDeferredValue, useMemo, useRef, useState, type PointerEvent } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import type { Dictionary } from "@/i18n";
 import { MODULE_KW } from "@/lib/engine/assumptions";
 import { fill, formatNumber, SQFT_PER_SQM } from "@/lib/format";
-import type { Point, Polygon } from "@/lib/geometry/polygon";
+import { polygonArea, type Point, type Polygon } from "@/lib/geometry/polygon";
 import { ESRI_ATTRIBUTION, type RoofSnapshot } from "@/lib/imagery/esri";
 import { layoutPanels } from "@/lib/layout/panels";
 import type { Region, RoofState } from "./types";
 
-type Mode = "roof" | "obstacle";
+/** "auto": tap the roof and Meta SAM 3.1 outlines it; "roof": tap its corners by hand. */
+type Mode = "auto" | "roof" | "obstacle";
+
+/** Progress of an automatic outline. */
+type AutoState =
+  | { status: "idle" }
+  | { status: "working"; point: Point }
+  | { status: "found"; large: boolean }
+  | { status: "notFound" }
+  | { status: "notHome" }
+  | { status: "busy" }
+  | { status: "error" };
+
+interface OutlineResponse {
+  outline: { polygon: Polygon; confidence: number | null } | null;
+}
+
+/** Outlines bigger than this are rarely one home's roof, so the household is asked to check. */
+const LARGE_ROOF_M2 = 1000;
+/** Bigger still is open ground or a large building, such as a school field, so it isn't used. */
+const MAX_HOME_ROOF_M2 = 3000;
 
 type DragTarget = { kind: "roof"; vertex: number } | { kind: "obstacle"; obstacle: number; vertex: number };
 
@@ -43,18 +63,28 @@ export function RoofEditor({
   snapshot: RoofSnapshot;
   region?: Region;
   /** A previously finished outline, when the household comes back to this step. */
-  initial?: Pick<RoofState, "roof" | "obstacles">;
+  initial?: Pick<RoofState, "roof" | "obstacles" | "outlinedBy">;
   dict: Dictionary["check"]["roof"];
   onBack: () => void;
   onContinue: (state: RoofState) => void;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const [mode, setMode] = useState<Mode>(initial ? "obstacle" : "roof");
+  // The household tapped their roof on the map, and a satellite snapshot is
+  // centred on that spot, so it can be outlined straight away. An uploaded
+  // photo waits for a tap, because outlining sends it to Meta.
+  const outlineOnOpen = !initial && snapshot.source === "esri";
+  const centre = { x: snapshot.size / 2, y: snapshot.size / 2 };
+  const [mode, setMode] = useState<Mode>(initial ? "obstacle" : "auto");
   const [roof, setRoof] = useState<Polygon>(initial?.roof ?? []);
   const [roofClosed, setRoofClosed] = useState(Boolean(initial));
+  const [outlinedBy, setOutlinedBy] = useState<RoofState["outlinedBy"]>(initial?.outlinedBy);
   const [obstacles, setObstacles] = useState<Polygon[]>(initial?.obstacles ?? []);
   const [draft, setDraft] = useState<Polygon>([]);
   const [drag, setDrag] = useState<DragTarget | null>(null);
+  const [auto, setAuto] = useState<AutoState>(outlineOnOpen ? { status: "working", point: centre } : { status: "idle" });
+  // Answers to superseded outline requests are ignored.
+  const latestAuto = useRef(0);
+  const openedRef = useRef(false);
 
   const layoutInput = useDeferredValue(roofClosed ? { roof, obstacles } : null);
   const layout = useMemo(
@@ -68,6 +98,65 @@ export function RoofEditor({
       }),
     [layoutInput, snapshot.metersPerPixel, snapshot.center.lat],
   );
+
+  async function requestOutline(point: Point, request: number) {
+    try {
+      const response = await fetch("/api/roof/outline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: snapshot.dataUrl, size: snapshot.size, point }),
+      });
+      if (request !== latestAuto.current) return;
+      if (response.status === 429) {
+        setAuto({ status: "busy" });
+        setMode("roof");
+        return;
+      }
+      if (!response.ok) throw new Error(`Outline request returned ${response.status}`);
+      const { outline } = (await response.json()) as OutlineResponse;
+      if (request !== latestAuto.current) return;
+      if (!outline) {
+        setAuto({ status: "notFound" });
+        return;
+      }
+      const areaM2 = polygonArea(outline.polygon) * snapshot.metersPerPixel ** 2;
+      if (areaM2 > MAX_HOME_ROOF_M2) {
+        setAuto({ status: "notHome" });
+        return;
+      }
+      setRoof(outline.polygon);
+      setRoofClosed(true);
+      setObstacles([]);
+      setDraft([]);
+      setOutlinedBy("sam");
+      setMode("obstacle");
+      setAuto({ status: "found", large: areaM2 > LARGE_ROOF_M2 });
+    } catch {
+      if (request !== latestAuto.current) return;
+      setAuto({ status: "error" });
+      setMode("roof");
+    }
+  }
+
+  function findRoof(point: Point) {
+    const request = ++latestAuto.current;
+    setAuto({ status: "working", point });
+    void requestOutline(point, request);
+  }
+
+  /** Stops waiting for an outline, so it can't replace what the household does next. */
+  function cancelAuto() {
+    latestAuto.current++;
+    if (auto.status === "working") setAuto({ status: "idle" });
+  }
+
+  useEffect(() => {
+    // Once per snapshot: the editor is remounted whenever the snapshot changes.
+    if (!outlineOnOpen || openedRef.current) return;
+    openedRef.current = true;
+    void requestOutline(centre, ++latestAuto.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /** Converts a pointer position to image pixels, plus how many image pixels one screen pixel spans. */
   function toImage(event: PointerEvent): { point: Point; scale: number } | null {
@@ -91,10 +180,16 @@ export function RoofEditor({
     if (!hit) return;
     const { point, scale } = hit;
 
+    if (mode === "auto") {
+      if (auto.status !== "working") findRoof(point);
+      return;
+    }
+
     if (mode === "roof") {
       if (roofClosed) return;
       if (roof.length >= 3 && near(point, roof[0], scale)) {
         setRoofClosed(true);
+        setOutlinedBy("hand");
         setMode("obstacle");
       } else {
         setRoof((current) => [...current, point]);
@@ -115,6 +210,7 @@ export function RoofEditor({
     // While the roof is still open, tapping its first corner closes it.
     if (target.kind === "roof" && !roofClosed && target.vertex === 0 && roof.length >= 3) {
       setRoofClosed(true);
+      setOutlinedBy("hand");
       setMode("obstacle");
       return;
     }
@@ -138,7 +234,13 @@ export function RoofEditor({
     setDrag(null);
   }
 
+  function chooseMode(next: Mode) {
+    if (next !== "auto") cancelAuto();
+    setMode(next);
+  }
+
   function undo() {
+    cancelAuto();
     if (mode === "obstacle") {
       if (draft.length) setDraft((current) => current.slice(0, -1));
       else if (obstacles.length) setObstacles((current) => current.slice(0, -1));
@@ -153,11 +255,14 @@ export function RoofEditor({
   }
 
   function clear() {
+    cancelAuto();
+    setAuto({ status: "idle" });
     setRoof([]);
     setRoofClosed(false);
+    setOutlinedBy(undefined);
     setObstacles([]);
     setDraft([]);
-    setMode("roof");
+    setMode("auto");
   }
 
   function finish() {
@@ -168,10 +273,28 @@ export function RoofEditor({
       metersPerPixel: snapshot.metersPerPixel,
       latitude: snapshot.center.lat,
     });
-    onContinue({ roof, obstacles, layout: finalLayout });
+    onContinue({ roof, obstacles, layout: finalLayout, outlinedBy });
   }
 
-  const instructions = mode === "roof" ? (roofClosed ? dict.instructionsDone : dict.instructionsRoof) : dict.instructionsObstacle;
+  const instructions =
+    mode === "auto"
+      ? snapshot.source === "upload"
+        ? dict.instructionsAutoPhoto
+        : dict.instructionsAuto
+      : mode === "roof"
+        ? roofClosed
+          ? dict.instructionsDone
+          : dict.instructionsRoof
+        : dict.instructionsObstacle;
+  const autoMessage = {
+    idle: null,
+    working: dict.autoWorking,
+    found: auto.status === "found" && auto.large ? `${dict.autoFound} ${dict.autoLarge}` : dict.autoFound,
+    notFound: dict.autoNotFound,
+    notHome: dict.autoNotHome,
+    busy: dict.autoBusy,
+    error: dict.autoError,
+  }[auto.status];
   const canUndo = roof.length > 0 || obstacles.length > 0 || draft.length > 0;
 
   return (
@@ -180,18 +303,18 @@ export function RoofEditor({
         {region && <p className="font-medium">{[region.district, region.state].filter(Boolean).join(", ")}</p>}
 
         <div className="flex flex-wrap gap-2" role="group">
-          {(["roof", "obstacle"] as const).map((value) => (
+          {(["auto", "roof", "obstacle"] as const).map((value) => (
             <button
               key={value}
               type="button"
               aria-pressed={mode === value}
               disabled={value === "obstacle" && !roofClosed}
-              onClick={() => setMode(value)}
+              onClick={() => chooseMode(value)}
               className={`rounded-full px-4 py-2 text-sm font-medium disabled:opacity-40 ${
                 mode === value ? "bg-ink text-bg" : "border border-border bg-surface"
               }`}
             >
-              {value === "roof" ? dict.modeRoof : dict.modeObstacle}
+              {{ auto: dict.modeAuto, roof: dict.modeRoof, obstacle: dict.modeObstacle }[value]}
             </button>
           ))}
           <button
@@ -212,9 +335,18 @@ export function RoofEditor({
           </button>
         </div>
 
-        <p aria-live="polite" className="text-sm text-muted">
-          {instructions}
-        </p>
+        <div aria-live="polite" className="space-y-2">
+          {autoMessage && (
+            <p
+              className={`rounded-xl p-3 text-sm ${
+                auto.status === "error" || auto.status === "busy" ? "bg-surface-muted text-danger" : "bg-primary-soft"
+              }`}
+            >
+              {autoMessage}
+            </p>
+          )}
+          <p className="text-sm text-muted">{instructions}</p>
+        </div>
 
         <svg
           ref={svgRef}
@@ -314,6 +446,22 @@ export function RoofEditor({
           {draft.map((p, vertex) => (
             <circle key={`d${vertex}`} cx={p.x} cy={p.y} r={5} fill={vertex === 0 ? "#dc2626" : "#ffffff"} stroke="#dc2626" strokeWidth={2} vectorEffect="non-scaling-stroke" />
           ))}
+
+          {auto.status === "working" && (
+            <g pointerEvents="none">
+              <circle
+                cx={auto.point.x}
+                cy={auto.point.y}
+                r={14}
+                fill="none"
+                stroke="#f59e0b"
+                strokeWidth={3}
+                vectorEffect="non-scaling-stroke"
+                className="origin-center animate-ping [transform-box:fill-box] motion-reduce:animate-none"
+              />
+              <circle cx={auto.point.x} cy={auto.point.y} r={6} fill="#f59e0b" stroke="#ffffff" strokeWidth={2} vectorEffect="non-scaling-stroke" />
+            </g>
+          )}
         </svg>
 
         <p className="text-xs text-muted">

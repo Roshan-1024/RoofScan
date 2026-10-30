@@ -86,10 +86,18 @@ household through the check. Each step is its own component in
    location for sunlight, rainfall and the subsidy state. Either way the
    next steps receive the same `RoofSnapshot`, tagged with its source.
 2. **Outline your roof** (`roof-editor.tsx`): an SVG editor over the
-   snapshot. The household taps the roof's corners, then outlines obstacles;
-   corners can be dragged. `layoutPanels()` reruns on every change (deferred,
-   so dragging stays smooth) and the side panel shows roof area, usable area,
-   panel count and the largest system that fits.
+   snapshot with three modes. **Find my roof** sends the image and a tapped
+   point to `POST /api/roof/outline`, where Meta SAM 3.1 outlines the roof
+   (see "Automatic roof outline" below). A satellite snapshot is centred on
+   the spot the household tapped on the map, so it is outlined as soon as
+   the editor opens; an uploaded photo waits for a tap, because outlining
+   sends it to Meta. **Draw by hand** takes the roof's corners one tap at a
+   time. **Obstacles** outlines what panels can't cover. Corners can always
+   be dragged. `layoutPanels()` reruns on every change (deferred, so
+   dragging stays smooth) and the side panel shows roof area, usable area,
+   panel count and the largest system that fits. `RoofState.outlinedBy`
+   records whether SAM or the household drew the outline, and the plan and
+   report credit SAM when it did.
 3. **Your electricity bill** (`bill-form.tsx`): units, billing period,
    amount, fixed charges, sanctioned load, connection type, DISCOM, consumer
    number and household size, validated with the zod schema in
@@ -129,6 +137,38 @@ details never leave the browser.
   pages and shows the consumer number masked.
 - `roof-figure.tsx` draws the roof, obstacles and the chosen panels, zoomed
   to the roof, on the plan and in the report.
+
+## Automatic roof outline
+
+- `POST /api/roof/outline` takes `{ image, size, point }`: a square roof
+  image as a data URL, its size in pixels, and the tapped point. It checks
+  the body (at most 2 MB, read with `readJsonBody()` from
+  `src/lib/security/body.ts`, which stops reading once the limit is passed),
+  allows 15 requests per client per 10 minutes, and counts each request
+  against `modelBudget`, a daily cap per server instance
+  (`MODEL_DAILY_REQUEST_LIMIT`, default 2000).
+- `src/lib/meta/client.ts` (server only) configures the OpenAI SDK for
+  Meta's Model API (`https://api.meta.ai/v1`) and names the standard model
+  IDs. Without `MODEL_API_KEY` the route answers 503 and the editor falls
+  back to drawing by hand.
+- `src/lib/meta/sam.ts` builds a SAM 3.1 point prompt with
+  `buildObjectPrompt()` from `@meta-sam/parser`, streams the Responses API
+  answer through `parseImageStream()`, and decodes the mask with
+  `decodeMaskToRaster()`. HTTP failures and unreadable responses become
+  `SegmentationError` (502 from the route).
+- `src/lib/segmentation/outline.ts` turns the mask into corners a household
+  can drag: d3-contour traces the regions, the one under the tapped point
+  (or else the largest) is kept, a mask that fills at least 85% of its
+  wall-aligned rectangle becomes that rectangle, and anything else is
+  simplified with Douglas–Peucker (about 1 m tolerance), with corners
+  closer than about 2.5 m merged and at most 12 kept. All sizes scale with
+  the image, so they mean the same on a 400 px snapshot and an 800 px photo.
+- The editor shows SAM's outline only after sanity checks: more than
+  3,000 m² is treated as open ground or a large building and not used, and
+  more than 1,000 m² comes with a note to check it. Answers that arrive
+  after the household has moved on (switched to drawing by hand, undone or
+  started again) are ignored. A 429 shows "busy", and any other failure
+  switches to drawing by hand.
 
 ## Imagery
 

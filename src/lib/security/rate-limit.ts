@@ -28,6 +28,29 @@ export class RateLimiter {
   }
 }
 
+/**
+ * Caps requests per UTC day across all visitors of one server instance, so
+ * a burst of traffic can't run up an unbounded model bill.
+ */
+export class DailyCap {
+  private day = "";
+  private used = 0;
+
+  constructor(private readonly limit: number) {}
+
+  /** Counts a request and returns whether today's cap still allows it. */
+  allow(now = Date.now()): boolean {
+    const day = new Date(now).toISOString().slice(0, 10);
+    if (day !== this.day) {
+      this.day = day;
+      this.used = 0;
+    }
+    if (this.used >= this.limit) return false;
+    this.used++;
+    return true;
+  }
+}
+
 /** Best-effort client identifier from proxy headers. */
 export function clientKey(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");

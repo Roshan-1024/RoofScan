@@ -25,6 +25,8 @@ export interface RoofState {
   roof: Polygon;
   obstacles: Polygon[];
   layout: RoofLayout;
+  /** Whether Meta SAM 3.1 found the outline (the household may have adjusted it) or it was drawn by hand. */
+  outlinedBy?: "sam" | "hand";
 }
 
 /** Average annual rainfall, from GET /api/rainfall. */

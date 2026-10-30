@@ -138,6 +138,18 @@ benchmark is ₹45,450 per kW. Households can enter their vendor's quote.
   200 metres are rejected. A photo taken at an angle stretches distances,
   so only straight-down photos give accurate areas.
 
+- **Automatic outline**: Meta SAM 3.1 segments the roof under the tapped
+  point. Its mask becomes an outline of at most 12 corners: a mask filling
+  at least 85% of its tightest wall-aligned rectangle becomes that
+  rectangle, and other shapes are simplified to within about 1 m of the
+  mask's edge. Outlines larger than 3,000 m² are not used. Tested on
+  satellite snapshots of houses in Pune, Delhi, Bengaluru, Jaipur, Lucknow,
+  Chennai, Ahmedabad and Kolkata: tapped roofs were outlined in 1 to 3
+  seconds, as whole buildings in most cases; trees covering a roof edge pull
+  the mask in, which is why the household checks and adjusts every outline.
+  Water tanks are only 4 to 5 pixels across at zoom 19, too small to
+  segment reliably, so obstacles are still outlined by hand.
+
 ## Panel layout
 
 - **Usable area**: the roof outline shrunk by a 0.6 m walkway along every
@@ -198,6 +210,9 @@ litres per year = roof area (m²) × annual rainfall (mm) × 0.8
 ## Known limitations
 
 - Shading from trees and neighbouring buildings is not modelled.
+- An automatic outline is only as good as the imagery: where trees cover the
+  roof's edge or neighbouring roofs join it, SAM 3.1 can stop short or take
+  in the neighbour, so the household checks the outline before continuing.
 - Sloped roofs are measured as their flat plan area. Indian residential
   roofs are mostly flat.
 - These are estimates. The final design comes from a registered vendor's site

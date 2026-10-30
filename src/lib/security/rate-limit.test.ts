@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clientKey, RateLimiter } from "./rate-limit";
+import { clientKey, DailyCap, RateLimiter } from "./rate-limit";
 
 describe("RateLimiter", () => {
   it("allows up to the limit within the window", () => {
@@ -39,5 +39,17 @@ describe("clientKey", () => {
 
   it("falls back when no proxy headers are present", () => {
     expect(clientKey(new Request("http://x"))).toBe("unknown");
+  });
+});
+
+describe("DailyCap", () => {
+  it("allows up to the cap each UTC day", () => {
+    const cap = new DailyCap(2);
+    const morning = Date.UTC(2026, 9, 30, 6);
+    expect(cap.allow(morning)).toBe(true);
+    expect(cap.allow(morning + 1000)).toBe(true);
+    expect(cap.allow(morning + 2000)).toBe(false);
+    // A new UTC day starts a fresh count.
+    expect(cap.allow(Date.UTC(2026, 9, 31, 0, 0, 1))).toBe(true);
   });
 });

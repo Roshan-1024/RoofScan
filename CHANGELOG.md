@@ -5,6 +5,27 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Automatic roof outlines with Meta SAM 3.1. The roof step opens with the
+  tapped roof already outlined from the satellite snapshot ("Finding your
+  roof's edges with Meta SAM 3.1…"), and the household checks it and drags
+  any corner that's off. "Find my roof" outlines whatever roof is tapped
+  next, including on an uploaded photo (only after a tap, since that sends
+  the photo to Meta); "Draw by hand" keeps the manual editor. Outlines
+  larger than 3,000 m² are rejected as open ground or a large building,
+  and those over 1,000 m² come with a note to check them. The plan and the
+  report credit SAM when it found the outline.
+- `POST /api/roof/outline`: SAM 3.1 point prompt through Meta's Model API,
+  with `@meta-sam/parser` for the streamed response. Requests are limited
+  to 2 MB, 15 per client per 10 minutes, and a daily cap per server
+  instance (`MODEL_DAILY_REQUEST_LIMIT`, default 2000). Without
+  `MODEL_API_KEY` the route returns 503 and the editor falls back to
+  drawing by hand.
+- `maskToOutline()` turns a segmentation mask into at most 12 draggable
+  corners, squaring off masks that fill at least 85% of their wall-aligned
+  rectangle. Tuned on SAM 3.1 masks of houses in eight Indian cities.
+
 ### Security
 
 - Every response now carries a Content-Security-Policy that keeps scripts,

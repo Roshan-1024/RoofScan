@@ -26,7 +26,12 @@ new check.
 - Only the fields needed for the calculation are read from a bill. Names and
   addresses are not extracted.
 - A roof photo the household uploads is decoded and scaled in the browser
-  and stays there.
+  and stays there, unless the household chooses "Find my roof" and taps it.
+  The editor says beforehand that this sends the photo to Meta's Model API.
+- For automatic outlining, the roof image (the satellite snapshot or the
+  photo) and the tapped pixel are sent to RoofScan's server and on to Meta
+  SAM 3.1, in memory, for that one request. Coordinates are not sent with
+  it. The image is not written to disk or logs.
 - Bill details typed into the form stay in the browser. The plan is
   calculated there, and the details are never sent to RoofScan's servers.
 
@@ -34,7 +39,7 @@ new check.
 
 | Service | What it receives | Why |
 |---|---|---|
-| Meta Model API | Roof image tiles, bill photos, voice recordings | Segmentation, bill reading, transcription |
+| Meta Model API | Roof images (the 400 px satellite snapshot or the household's photo) and the tapped pixel; bill photos; voice recordings | Roof outlines (SAM 3.1), bill reading, transcription |
 | Esri World Imagery | Map tile requests, sent directly from the visitor's browser (location and IP address) | Satellite imagery |
 | OpenStreetMap Nominatim | Address searches, and pinned coordinates rounded to about 100 m, sent from RoofScan's server, so the visitor's IP address is not shared | Geocoding and confirming the location is in India |
 | NASA POWER | Coordinates | Solar resource data |
