@@ -8,6 +8,11 @@ data. These rules apply to every feature.
 Nothing on its servers. There are no accounts, no database and no analytics.
 A household's report stays in their browser until they download it.
 
+Progress through the check (the roof snapshot, outline and bill details)
+is kept in the browser's `sessionStorage` for that tab only, so a reload
+doesn't lose it. It is cleared when the tab closes or the household starts a
+new check.
+
 ## How personal data is handled
 
 - Bill photos are processed in memory, sent to the Meta Model API for

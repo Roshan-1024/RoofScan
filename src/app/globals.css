@@ -74,3 +74,23 @@ body {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
+
+/* Printed reports always use the light palette and keep image and fill colours. */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-muted: #f4f2ec;
+    --ink: #000000;
+    --muted: #444444;
+    --border: #cccccc;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

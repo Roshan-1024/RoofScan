@@ -7,6 +7,18 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ### Added
 
+- Application guide on the plan: the details to enter on the official
+  PM Surya Ghar portal (state, DISCOM, masked consumer number, system size,
+  sanctioned load), the seven official steps from registration to subsidy,
+  the documents to keep ready, and a link to the portal.
+- Printable report: "Download report (PDF)" opens the browser's print
+  dialog with a two-page A4 report covering the roof with its panels, the
+  recommended system, cost and savings, bill summary, monthly generation,
+  rainwater, the application guide and assumptions, in English or Hindi.
+  The consumer number is masked.
+- Roof figure zoomed to the roof, on the plan and in the report.
+- Progress is kept in `sessionStorage`, so a reload keeps the household's
+  place; "Start a new check" clears it.
 - "Your electricity bill" step: units, billing period, amount, fixed
   charges, sanctioned load, connection type, DISCOM, consumer number and
   household size, validated in the browser. Yearly use and the price per

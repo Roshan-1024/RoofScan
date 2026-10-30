@@ -31,7 +31,9 @@ SAM 3.1 and Muse Voice Transcribe.
 | Solar plan: system size, cost after subsidy, savings, payback, monthly chart | Done |
 | Rainwater estimate from the same roof | Done |
 | Electricity bill reading from a photo with Muse Spark | Planned |
-| Application checklist and PDF report | Planned |
+| Application guide with the details to enter on the PM Surya Ghar portal | Done |
+| Two-page report, saved as PDF from the browser, in English or Hindi | Done |
+| Progress kept across a reload, in this browser tab only | Done |
 | Voice questions with Muse Voice Transcribe | Planned |
 
 [CHANGELOG.md](CHANGELOG.md) records what each change added.

@@ -79,10 +79,29 @@ household through the check. Each step is its own component in
    (`monthly-chart.tsx`, with a table view), and the rainwater estimate.
    Installed cost per kW and rainfall can be edited.
 
+   Below the numbers: the application guide (`apply-guide.tsx`) with the
+   details to enter on the PM Surya Ghar portal and the official steps, and
+   a button that prints the report.
+
 `CheckFlow` holds the state of all four steps, so going back keeps what the
 household entered. Solar and rainfall data start loading as soon as a roof
 is chosen, so they are usually ready by the time the bill is entered. Bill
 details never leave the browser.
+
+### Progress and the report
+
+- Progress (step, snapshot, outline, bill) is saved to `sessionStorage`, so
+  a reload keeps it. It stays in that tab and is cleared when the tab
+  closes. "Start a new check" resets it. `CheckFlowLoader` renders the flow
+  on the client only, which lets it read storage while initialising.
+- The report (`report-sheet.tsx`) is hidden on screen and shown only when
+  printing, while the site header, footer and the interactive plan are
+  hidden. "Download report (PDF)" opens the browser's print dialog, whose
+  "Save as PDF" keeps Hindi letters joined correctly. Print styles force
+  the light palette, A4 pages and exact colours. The report fits on two A4
+  pages and shows the consumer number masked.
+- `roof-figure.tsx` draws the roof, obstacles and the chosen panels, zoomed
+  to the roof, on the plan and in the report.
 
 ## Imagery
 

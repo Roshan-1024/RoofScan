@@ -15,7 +15,7 @@ export function SiteHeader({
   const other = alternateLocale[locale];
 
   return (
-    <header className="border-b border-border bg-surface/80 backdrop-blur">
+    <header className="border-b border-border bg-surface/80 backdrop-blur print:hidden">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
         <Link
           href={`/${locale}`}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Dictionary, Locale } from "@/i18n";
 import type { BillDetails } from "@/lib/bill";
 import type { RoofSnapshot } from "@/lib/imagery/esri";
@@ -17,18 +17,87 @@ interface SelectedSite {
 
 type Step = 0 | 1 | 2 | 3;
 
+interface Progress {
+  step: Step;
+  site: SelectedSite | null;
+  roofState: RoofState | null;
+  bill: BillDetails | null;
+}
+
+/**
+ * Progress lives in sessionStorage: it survives a reload, stays in this tab
+ * only, and is cleared when the tab closes. Nothing is sent to a server.
+ */
+const STORAGE_KEY = "roofscan:check:v1";
+const EMPTY: Progress = { step: 0, site: null, roofState: null, bill: null };
+
+function readProgress(): Progress {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? "null") as Progress | null;
+    if (saved && typeof saved.step === "number" && saved.step >= 0 && saved.step <= 3) return saved;
+  } catch {
+    // Storage blocked or corrupt: start fresh.
+  }
+  return EMPTY;
+}
+
+function saveProgress(progress: Progress) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  } catch {
+    // Storage full or blocked: progress just won't survive a reload.
+  }
+}
+
 async function getJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`${url} returned ${response.status}`);
   return (await response.json()) as T;
 }
 
-export function CheckFlow({ locale, dict }: { locale: Locale; dict: Dictionary["check"] }) {
-  const [step, setStep] = useState<Step>(0);
-  const [site, setSite] = useState<SelectedSite | null>(null);
-  const [roofState, setRoofState] = useState<RoofState | null>(null);
-  const [bill, setBill] = useState<BillDetails | null>(null);
+function fetchResources(lat: number, lon: number): Promise<SiteResources> {
+  const query = `lat=${lat}&lon=${lon}`;
+  return Promise.all([
+    getJson<{ monthlyGhi: number[] }>(`/api/solar-resource?${query}`),
+    // Rainfall is optional: the household can type it in if the lookup fails.
+    getJson<RainfallData>(`/api/rainfall?${query}`).catch(() => null),
+  ])
+    .then(([solar, rainfall]): SiteResources => ({ status: "ready", monthlyGhi: solar.monthlyGhi, rainfall }))
+    .catch((): SiteResources => ({ status: "error" }));
+}
+
+/** Rendered on the client only (see CheckFlowLoader), so it can read sessionStorage while initialising. */
+export function CheckFlow({
+  locale,
+  dict,
+  disclaimer,
+}: {
+  locale: Locale;
+  dict: Dictionary["check"];
+  disclaimer: string;
+}) {
+  const [initial] = useState(readProgress);
+  const [step, setStep] = useState<Step>(initial.step);
+  const [site, setSite] = useState<SelectedSite | null>(initial.site);
+  const [roofState, setRoofState] = useState<RoofState | null>(initial.roofState);
+  const [bill, setBill] = useState<BillDetails | null>(initial.bill);
   const [resources, setResources] = useState<SiteResources>({ status: "loading" });
+
+  // A restored session needs its location data again.
+  useEffect(() => {
+    if (!initial.site) return;
+    let cancelled = false;
+    fetchResources(initial.site.snapshot.center.lat, initial.site.snapshot.center.lon).then((loaded) => {
+      if (!cancelled) setResources(loaded);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [initial.site]);
+
+  useEffect(() => {
+    saveProgress({ step, site, roofState, bill });
+  }, [step, site, roofState, bill]);
 
   const steps = [dict.steps.find, dict.steps.roof, dict.steps.bill, dict.steps.plan];
 
@@ -39,14 +108,7 @@ export function CheckFlow({ locale, dict }: { locale: Locale; dict: Dictionary["
 
   function loadResources(lat: number, lon: number) {
     setResources({ status: "loading" });
-    const query = `lat=${lat}&lon=${lon}`;
-    Promise.all([
-      getJson<{ monthlyGhi: number[] }>(`/api/solar-resource?${query}`),
-      // Rainfall is optional: the household can type it in if the lookup fails.
-      getJson<RainfallData>(`/api/rainfall?${query}`).catch(() => null),
-    ])
-      .then(([solar, rainfall]) => setResources({ status: "ready", monthlyGhi: solar.monthlyGhi, rainfall }))
-      .catch(() => setResources({ status: "error" }));
+    fetchResources(lat, lon).then(setResources);
   }
 
   function handleSelected(selected: SelectedSite) {
@@ -56,9 +118,16 @@ export function CheckFlow({ locale, dict }: { locale: Locale; dict: Dictionary["
     goTo(1);
   }
 
+  function startOver() {
+    setSite(null);
+    setRoofState(null);
+    setBill(null);
+    goTo(0);
+  }
+
   return (
     <div className="mt-6">
-      <ol className="mb-6 flex flex-wrap gap-2 text-sm" aria-label={dict.title}>
+      <ol className="mb-6 flex flex-wrap gap-2 text-sm print:hidden" aria-label={dict.title}>
         {steps.map((label, index) => (
           <li
             key={label}
@@ -99,14 +168,18 @@ export function CheckFlow({ locale, dict }: { locale: Locale; dict: Dictionary["
         />
       ) : (
         <PlanView
+          locale={locale}
+          snapshot={site.snapshot}
           roofState={roofState}
           bill={bill}
           region={site.region}
           resources={resources}
-          dict={dict.plan}
+          checkDict={dict}
+          disclaimer={disclaimer}
           onRetry={() => loadResources(site.snapshot.center.lat, site.snapshot.center.lon)}
           onBackToBill={() => goTo(2)}
           onBackToRoof={() => goTo(1)}
+          onStartOver={startOver}
         />
       )}
     </div>
