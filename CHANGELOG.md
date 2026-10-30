@@ -7,6 +7,25 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ### Added
 
+- "Read my bill": a photo or PDF of the electricity bill fills the bill
+  form. Muse Spark 1.3 reads the units, charges for the period, fixed
+  charges, sanctioned load, connection type, company, consumer number and
+  billing period, with strict JSON-schema output; names and addresses are
+  never read. RoofScan checks the answer (zod), works out the billing
+  months from the printed dates, converts the load to kW and keeps only
+  values that hang together. Every filled field is marked "From your bill"
+  until it is edited, and documents that aren't electricity bills are
+  refused. English and Hindi.
+- `POST /api/bill/read`: 8 MB body limit, 10 readings per client per 10
+  minutes, counted against the daily model cap; 503 without an API key.
+- Photos are turned upright, shrunk to 2,000 px and re-encoded in the
+  browser before upload, which also strips their location metadata.
+- `npm run eval:bills`: reads 16 synthetic documents (bills in seven
+  languages, phone-style photos, PDFs, and two documents that must be
+  refused) with the real API and reports accuracy, tokens and cost. Recent
+  runs: 97 to 98 of 98 fields and 16 of 16 documents classified, about
+  US$0.0055 per bill.
+
 - Automatic roof outlines with Meta SAM 3.1. The roof step opens with the
   tapped roof already outlined from the satellite snapshot ("Finding your
   roof's edges with Meta SAM 3.1…"), and the household checks it and drags
@@ -36,6 +55,10 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ### Fixed
 
+- File pickers ("Choose a photo", "Take a photo or choose a file") showed no
+  focus ring for keyboard users, because the visually hidden input sat
+  outside its label. The input is now inside the label, and the label
+  shows its focus.
 - A crash while rendering showed the framework's English-only "This page
   couldn't load" screen, and reloading brought the same saved step back,
   so damaged progress (for example from an older version) locked the

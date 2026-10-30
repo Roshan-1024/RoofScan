@@ -30,7 +30,7 @@ SAM 3.1 and Muse Voice Transcribe.
 | Bill details form, with yearly use and price per unit derived from it | Done |
 | Solar plan: system size, cost after subsidy, savings, payback, monthly chart | Done |
 | Rainwater estimate from the same roof | Done |
-| Electricity bill reading from a photo with Muse Spark | Planned |
+| Electricity bill reading from a photo or PDF with Muse Spark, checked by the household | Done |
 | Application guide with the details to enter on the PM Surya Ghar portal | Done |
 | Two-page report, saved as PDF from the browser, in English or Hindi | Done |
 | Progress kept across a reload, in this browser tab only | Done |
@@ -69,6 +69,7 @@ npm run dev                  # http://localhost:3000
 | `npm run typecheck` | Generate route types and run the TypeScript compiler |
 | `npm run test` | Unit tests (Vitest) |
 | `npm run check` | Lint, typecheck and test; run before every commit |
+| `npm run eval:bills` | Reads the synthetic bills in `src/lib/bill-reading/__fixtures__` with Muse Spark and reports accuracy and cost. Calls the real API: needs `MODEL_API_KEY`, costs about US$0.09 |
 
 ## Project structure
 
@@ -84,7 +85,8 @@ src/
   lib/geometry/      Polygon area, rotation and orientation
   lib/imagery/       Esri World Imagery tiles and roof snapshots (browser)
   lib/layout/        Panel layout on a roof outline
-  lib/meta/          Meta Model API client and SAM 3.1 calls (server only)
+  lib/bill-reading/  Bill reading: schema, instructions, checks; synthetic test bills
+  lib/meta/          Meta Model API client, SAM 3.1 and Muse Spark calls (server only)
   lib/segmentation/  Segmentation masks to editable roof outlines
   lib/security/      Rate limits, daily model cap, request body limits
   components/check/  The roof check flow
@@ -105,6 +107,7 @@ source behind the numbers.
 | `GET /api/region?lat=&lon=` | State and district for a location in India |
 | `GET /api/rainfall?lat=&lon=` | Average annual rainfall for a location in India (ECMWF IFS via Open-Meteo) |
 | `POST /api/roof/outline` | Outline of the roof under a tapped point in a roof image (Meta SAM 3.1). Body: `{ image, size, point }` |
+| `POST /api/bill/read` | Bill form values read from an electricity bill photo or PDF (Muse Spark 1.3). Body: `{ file }` |
 
 ## Privacy
 

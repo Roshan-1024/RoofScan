@@ -1,0 +1,212 @@
+{
+  "cases": [
+    {
+      "file": "delhi-commercial-english.png",
+      "expected": {
+        "discom": "YPDL",
+        "units": 1200,
+        "months": 1,
+        "amount": 14941.5,
+        "fixed": 2500,
+        "loadKw": 10,
+        "residential": false,
+        "consumer": "153009988776",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "delhi-monthly-english-photo.jpg",
+      "expected": {
+        "discom": "YPDL",
+        "units": 410,
+        "months": 1,
+        "amount": 3517.56,
+        "fixed": 200,
+        "loadKw": 4,
+        "residential": true,
+        "consumer": "153004417092",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "delhi-monthly-english.png",
+      "expected": {
+        "discom": "YPDL",
+        "units": 410,
+        "months": 1,
+        "amount": 3517.56,
+        "fixed": 200,
+        "loadKw": 4,
+        "residential": true,
+        "consumer": "153004417092",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "gujarat-bimonthly-gujarati-photo.jpg",
+      "expected": {
+        "discom": "SPL",
+        "units": 480,
+        "months": 2,
+        "amount": 3960,
+        "fixed": 240,
+        "loadKw": 3,
+        "residential": true,
+        "consumer": "11002244668",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "gujarat-bimonthly-gujarati.png",
+      "expected": {
+        "discom": "SPL",
+        "units": 480,
+        "months": 2,
+        "amount": 3960,
+        "fixed": 240,
+        "loadKw": 3,
+        "residential": true,
+        "consumer": "11002244668",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "karnataka-monthly-kannada-lowres.jpg",
+      "expected": {
+        "discom": "KESCO",
+        "units": 180,
+        "months": 1,
+        "amount": 1379.28,
+        "fixed": 230,
+        "loadKw": 2,
+        "residential": true,
+        "consumer": "9876543210",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "karnataka-monthly-kannada.png",
+      "expected": {
+        "discom": "KESCO",
+        "units": 180,
+        "months": 1,
+        "amount": 1379.28,
+        "fixed": 230,
+        "loadKw": 2,
+        "residential": true,
+        "consumer": "9876543210",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "maharashtra-monthly-marathi.pdf",
+      "expected": {
+        "discom": "SVVC",
+        "units": 245,
+        "months": 1,
+        "amount": 2140,
+        "fixed": 128,
+        "loadKw": 3,
+        "residential": true,
+        "consumer": "170012345678",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "maharashtra-monthly-marathi.png",
+      "expected": {
+        "discom": "SVVC",
+        "units": 245,
+        "months": 1,
+        "amount": 2140,
+        "fixed": 128,
+        "loadKw": 3,
+        "residential": true,
+        "consumer": "170012345678",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "shop-receipt-not-a-bill.png",
+      "expected": {
+        "isElectricityBill": false
+      }
+    },
+    {
+      "file": "tamil-nadu-bimonthly-tamil.pdf",
+      "expected": {
+        "discom": "VPDC",
+        "units": 520,
+        "months": 2,
+        "amount": 2145,
+        "fixed": 120,
+        "loadKw": 3,
+        "residential": true,
+        "consumer": "09-123-456-789",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "tamil-nadu-bimonthly-tamil.png",
+      "expected": {
+        "discom": "VPDC",
+        "units": 520,
+        "months": 2,
+        "amount": 2145,
+        "fixed": 120,
+        "loadKw": 3,
+        "residential": true,
+        "consumer": "09-123-456-789",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "uttar-pradesh-monthly-hindi-photo.jpg",
+      "expected": {
+        "discom": "GVVN",
+        "units": 300,
+        "months": 1,
+        "amount": 2110.5,
+        "fixed": 220,
+        "loadKw": 2,
+        "residential": true,
+        "consumer": "2938471650",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "uttar-pradesh-monthly-hindi.png",
+      "expected": {
+        "discom": "GVVN",
+        "units": 300,
+        "months": 1,
+        "amount": 2110.5,
+        "fixed": 220,
+        "loadKw": 2,
+        "residential": true,
+        "consumer": "2938471650",
+        "isElectricityBill": true
+      }
+    },
+    {
+      "file": "water-bill-not-electricity.png",
+      "expected": {
+        "isElectricityBill": false
+      }
+    },
+    {
+      "file": "west-bengal-quarterly-bengali.png",
+      "expected": {
+        "discom": "HEDCO",
+        "units": 610,
+        "months": 3,
+        "amount": 4350,
+        "fixed": 90,
+        "loadKw": 2,
+        "residential": true,
+        "consumer": "331045678901",
+        "isElectricityBill": true
+      }
+    }
+  ]
+}

@@ -105,6 +105,23 @@ benchmark is ₹45,450 per kW. Households can enter their vendor's quote.
 - **Connection type**: PM Surya Ghar only covers residential connections, so
   other connections get no subsidy.
 - **Sanctioned load**: compared against the system size for a warning only.
+- **Reading the bill**: Muse Spark 1.3 reads the units for the period (not
+  cumulative meter readings), the charges for this period only (energy,
+  fixed charges, fuel adjustment, duty and taxes, without arrears, late
+  fees, interest or early-payment rebates), fixed charges, sanctioned load,
+  tariff category, consumer number and the billing period. The number of
+  months comes from the printed dates when available, so a two-month bill
+  isn't read as one. Loads in kVA count as kW (residential power factor is
+  close to 1), watts are divided by 1,000 and horsepower is multiplied by
+  0.746. Tariffs such as Domestic, LT-I Residential, LMV-1, LA1A and RGP
+  count as residential. The household checks every value before
+  continuing.
+- **Accuracy**: on 16 synthetic documents (14 bills in seven languages,
+  including phone-style photos, a low-resolution copy and two PDFs, plus a
+  water bill and a shop receipt that must be refused), the last runs read
+  97 to 98 of 98 fields correctly and classified all 16 documents, at about
+  US$0.0055 and 4 to 9 seconds per bill. Real bills vary more than these,
+  which is why every value is shown for checking.
 
 ## Savings and payback
 

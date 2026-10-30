@@ -68,13 +68,10 @@ export function RoofUpload({
       <p className="text-muted">{dict.intro}</p>
 
       <div>
-        <label
-          htmlFor={inputId}
-          className="inline-flex cursor-pointer rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-ink"
-        >
+        <label className="inline-flex cursor-pointer rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-ink">
           {dict.choose}
+          <input id={inputId} type="file" accept="image/*" onChange={choose} className="sr-only" />
         </label>
-        <input id={inputId} type="file" accept="image/*" onChange={choose} className="sr-only" />
       </div>
       {error && (
         <p role="alert" className="text-danger">

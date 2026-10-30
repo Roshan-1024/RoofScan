@@ -101,7 +101,9 @@ household through the check. Each step is its own component in
 3. **Your electricity bill** (`bill-form.tsx`): units, billing period,
    amount, fixed charges, sanctioned load, connection type, DISCOM, consumer
    number and household size, validated with the zod schema in
-   `src/lib/bill.ts`.
+   `src/lib/bill.ts`. "Read my bill" fills these from a photo or PDF of the
+   bill (see "Bill reading" below); each filled field is marked "From your
+   bill" until the household edits it.
 4. **Your solar plan** (`plan-view.tsx`): runs `planSolar()` in the browser
    and shows the recommended system (adjustable panel by panel), cost and
    subsidy, savings and payback, monthly generation against monthly use
@@ -169,6 +171,30 @@ details never leave the browser.
   after the household has moved on (switched to drawing by hand, undone or
   started again) are ignored. A 429 shows "busy", and any other failure
   switches to drawing by hand.
+
+## Bill reading
+
+- In the browser, `prepareBillFile()` (`src/lib/bill-reading/file.ts`)
+  turns a photo upright, shrinks it to at most 2,000 px on its long edge
+  and re-encodes it as JPEG, which also drops its metadata (such as where
+  it was taken). PDFs up to 5 MB are sent as they are.
+- `POST /api/bill/read` takes `{ file }` (a JPEG, PNG, WebP or PDF data
+  URL), limits the body to 8 MB and each client to 10 readings per 10
+  minutes, and counts against the daily model cap.
+- `src/lib/meta/read-bill.ts` (server only) sends the bill to Muse Spark 1.3
+  through Chat Completions: images as `image_url` parts, PDFs as `file`
+  parts. It asks for strict JSON-schema output with low reasoning effort.
+  The schema, the instructions for each field and the checks live in
+  `src/lib/bill-reading/extract.ts`.
+- The answer is validated with zod; an impossible value (negative units,
+  an unknown load unit) becomes null rather than failing the reading.
+  `toBillPrefill()` then derives the billing months from the printed dates
+  when there are any, converts the load to kW, drops fixed charges that
+  aren't less than the bill, and returns only the values that hang
+  together. Names and addresses are never requested.
+- `npm run eval:bills` (`accuracy.eval.ts`, its own Vitest config) reads the
+  synthetic bills in `__fixtures__` with the real API and prints a table of
+  results, tokens and cost. It is not part of `npm test`.
 
 ## Imagery
 

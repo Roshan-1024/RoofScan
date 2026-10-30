@@ -17,7 +17,10 @@ new check.
 
 - Bill photos are processed in memory, sent to the Meta Model API for
   reading, and discarded when the request ends. They are never written to
-  disk or logs.
+  disk or logs. The browser re-encodes a photo before sending it, which
+  removes its metadata, such as the location where it was taken. A bill is
+  only sent when the household chooses one under "Read my bill", and the
+  form says beforehand that it goes to Meta's Model API.
 - RoofScan uses Meta's standard model IDs (for example `muse-spark-1.3`), not
   the cheaper "contributor" variants, which Meta uses to improve its
   products.
