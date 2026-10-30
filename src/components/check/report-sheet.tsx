@@ -84,7 +84,7 @@ export function ReportSheet({
             label={report.roofSection}
             className="w-full rounded border border-black/20"
           />
-          <p className="mt-1 text-[10px]">{ESRI_ATTRIBUTION}</p>
+          <p className="mt-1 text-[10px]">{snapshot.source === "esri" ? ESRI_ATTRIBUTION : roofDict.ownPhoto}</p>
         </div>
         <div className="space-y-5">
           <Section title={report.roofSection}>

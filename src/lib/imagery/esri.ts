@@ -37,14 +37,17 @@ export async function bestImageryZoom(lat: number, lon: number): Promise<number 
 }
 
 export interface RoofSnapshot {
-  /** JPEG data URL of the stitched imagery. */
+  /** JPEG data URL of the roof image. */
   dataUrl: string;
   /** Width and height in pixels (square). */
   size: number;
-  zoom: number;
+  /** Map zoom of satellite imagery; null for an uploaded photo. */
+  zoom: number | null;
   metersPerPixel: number;
-  /** The tapped location, which sits at the centre pixel. */
+  /** The tapped location. For satellite imagery it sits at the centre pixel. */
   center: { lat: number; lon: number };
+  /** Esri satellite imagery, or the household's own calibrated photo. */
+  source: "esri" | "upload";
 }
 
 function loadTile(url: string): Promise<HTMLImageElement> {
@@ -88,5 +91,6 @@ export async function captureSnapshot(lat: number, lon: number, zoom: number, si
     zoom,
     metersPerPixel: metersPerPixel(lat, zoom),
     center: { lat, lon },
+    source: "esri",
   };
 }

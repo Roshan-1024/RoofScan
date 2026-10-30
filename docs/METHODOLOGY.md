@@ -102,6 +102,13 @@ benchmark is ₹45,450 per kW. Households can enter their vendor's quote.
 - **Area**: the outline's area in pixels (shoelace formula) × (metres per
   pixel)². A one-pixel error along each edge of a 10 m × 10 m roof changes
   the area by about 6%.
+- **Your own photo**: where Esri imagery is too coarse, households can use
+  a photo taken from straight above (a drone photo or a map screenshot). It
+  is fitted into an 800 × 800 pixel square, and the scale comes from a line
+  they mark on something of known length: metres per pixel = real length ÷
+  line length in pixels. Lines under 20 pixels and lengths outside 1 to
+  200 metres are rejected. A photo taken at an angle stretches distances,
+  so only straight-down photos give accurate areas.
 
 ## Panel layout
 

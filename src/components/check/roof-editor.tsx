@@ -317,7 +317,8 @@ export function RoofEditor({
         </svg>
 
         <p className="text-xs text-muted">
-          {ESRI_ATTRIBUTION}. {fill(dict.imageDetail, { value: formatNumber(snapshot.metersPerPixel, 2) })}
+          {snapshot.source === "esri" ? ESRI_ATTRIBUTION : dict.ownPhoto}.{" "}
+          {fill(dict.imageDetail, { value: formatNumber(snapshot.metersPerPixel, snapshot.source === "esri" ? 2 : 3) })}
         </p>
         <button type="button" onClick={onBack} className="text-sm font-medium text-primary underline">
           {dict.back}

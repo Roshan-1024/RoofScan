@@ -7,6 +7,14 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ### Added
 
+- "Use my own roof photo" for places where satellite imagery is too coarse:
+  the household uploads a top-down photo (EXIF orientation respected,
+  fitted into an 800 px square), marks a line of known length in metres or
+  feet to set the scale, and continues with the same outline editor. The
+  photo stays in the browser; the report credits "Your photo" instead of
+  Esri.
+- `RoofSnapshot.source` records whether the image is Esri imagery or an
+  upload; saved sessions from before default to Esri.
 - Application guide on the plan: the details to enter on the official
   PM Surya Ghar portal (state, DISCOM, masked consumer number, system size,
   sanctioned load), the seven official steps from registration to subsidy,

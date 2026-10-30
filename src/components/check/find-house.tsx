@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useState, type FormEvent } from "react";
 import type { Dictionary, Locale } from "@/i18n";
 import { bestImageryZoom, captureSnapshot, type RoofSnapshot } from "@/lib/imagery/esri";
+import { RoofUpload } from "./roof-upload";
 import type { LatLon, MapView, Region } from "./types";
 
 // Leaflet needs the browser's window, so the map renders on the client only.
@@ -34,10 +35,14 @@ async function lookupRegion(point: LatLon): Promise<Region | undefined> {
 export function FindHouse({
   locale,
   dict,
+  uploadDict,
+  imageDetail,
   onSelected,
 }: {
   locale: Locale;
   dict: Dictionary["check"]["find"];
+  uploadDict: Dictionary["check"]["upload"];
+  imageDetail: string;
   onSelected: (site: { snapshot: RoofSnapshot; region?: Region }) => void;
 }) {
   const [query, setQuery] = useState("");
@@ -48,6 +53,7 @@ export function FindHouse({
   const [view, setView] = useState<MapView | null>(null);
   const [point, setPoint] = useState<LatLon | null>(null);
   const [captureState, setCaptureState] = useState<CaptureState>("idle");
+  const [uploading, setUploading] = useState(false);
 
   async function search(event: FormEvent) {
     event.preventDefault();
@@ -113,6 +119,22 @@ export function FindHouse({
     } catch {
       setCaptureState("error");
     }
+  }
+
+  async function handleUpload(snapshot: RoofSnapshot) {
+    onSelected({ snapshot, region: await lookupRegion(snapshot.center) });
+  }
+
+  if (uploading && point) {
+    return (
+      <RoofUpload
+        point={point}
+        dict={uploadDict}
+        imageDetail={imageDetail}
+        onReady={handleUpload}
+        onCancel={() => setUploading(false)}
+      />
+    );
   }
 
   return (
@@ -184,6 +206,15 @@ export function FindHouse({
         >
           {captureState === "capturing" ? dict.capturing : dict.measure}
         </button>
+        {point && (
+          <button
+            type="button"
+            onClick={() => setUploading(true)}
+            className="rounded-full border border-border bg-surface px-5 py-3 font-medium"
+          >
+            {dict.uploadInstead}
+          </button>
+        )}
         {captureState === "noImagery" && <p className="text-danger">{dict.noImagery}</p>}
         {captureState === "error" && <p className="text-danger">{dict.imageryError}</p>}
       </div>

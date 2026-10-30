@@ -63,7 +63,12 @@ household through the check. Each step is its own component in
    location", and a Leaflet satellite map (`satellite-map.tsx`, loaded on
    the client only) where the household taps their roof. "Measure this roof"
    asks Esri's tile map for the best zoom at that point, stitches a snapshot
-   in the browser and looks up the region in parallel.
+   in the browser and looks up the region in parallel. "Use my own roof
+   photo" (`roof-upload.tsx`) instead takes a top-down photo, fits it into a
+   square, and sets the scale from a line the household marks on something
+   of known length (`src/lib/imagery/upload.ts`). The pin still supplies the
+   location for sunlight, rainfall and the subsidy state. Either way the
+   next steps receive the same `RoofSnapshot`, tagged with its source.
 2. **Outline your roof** (`roof-editor.tsx`): an SVG editor over the
    snapshot. The household taps the roof's corners, then outlines obstacles;
    corners can be dragged. `layoutPanels()` reruns on every change (deferred,

@@ -34,7 +34,11 @@ const EMPTY: Progress = { step: 0, site: null, roofState: null, bill: null };
 function readProgress(): Progress {
   try {
     const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? "null") as Progress | null;
-    if (saved && typeof saved.step === "number" && saved.step >= 0 && saved.step <= 3) return saved;
+    if (saved && typeof saved.step === "number" && saved.step >= 0 && saved.step <= 3) {
+      // Sessions saved before uploads existed only had satellite imagery.
+      if (saved.site && !saved.site.snapshot.source) saved.site.snapshot.source = "esri";
+      return saved;
+    }
   } catch {
     // Storage blocked or corrupt: start fresh.
   }
@@ -142,10 +146,16 @@ export function CheckFlow({
       </ol>
 
       {step === 0 || !site ? (
-        <FindHouse locale={locale} dict={dict.find} onSelected={handleSelected} />
+        <FindHouse
+          locale={locale}
+          dict={dict.find}
+          uploadDict={dict.upload}
+          imageDetail={dict.roof.imageDetail}
+          onSelected={handleSelected}
+        />
       ) : step === 1 || !roofState ? (
         <RoofEditor
-          key={`${site.snapshot.center.lat},${site.snapshot.center.lon},${site.snapshot.zoom}`}
+          key={`${site.snapshot.source},${site.snapshot.center.lat},${site.snapshot.center.lon},${site.snapshot.metersPerPixel}`}
           snapshot={site.snapshot}
           region={site.region}
           initial={roofState ?? undefined}

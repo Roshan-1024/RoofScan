@@ -25,7 +25,7 @@ SAM 3.1 and Muse Voice Transcribe.
 | Solar and rainwater calculation engine, NASA POWER solar data | Done |
 | Address search, satellite map and roof selection | Done |
 | Roof outline editor with obstacles and automatic panel layout | Done |
-| Upload your own roof photo where satellite imagery is too coarse | Planned |
+| Upload your own roof photo where satellite imagery is too coarse, with scale calibration | Done |
 | Automatic roof and obstacle outlines with SAM 3.1 | Planned |
 | Bill details form, with yearly use and price per unit derived from it | Done |
 | Solar plan: system size, cost after subsidy, savings, payback, monthly chart | Done |

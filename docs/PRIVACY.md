@@ -25,6 +25,8 @@ new check.
   digits.
 - Only the fields needed for the calculation are read from a bill. Names and
   addresses are not extracted.
+- A roof photo the household uploads is decoded and scaled in the browser
+  and stays there.
 - Bill details typed into the form stay in the browser. The plan is
   calculated there, and the details are never sent to RoofScan's servers.
 
