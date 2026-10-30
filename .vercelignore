@@ -1,0 +1,8 @@
+# Never upload secrets, private test material or local notes to Vercel.
+.env*
+!.env.example
+private/
+NOTES_FOR_ROSHAN.md
+node_modules/
+.next/
+*.tsbuildinfo
