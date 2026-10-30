@@ -20,6 +20,8 @@ A household's report stays in their browser until they download it.
   digits.
 - Only the fields needed for the calculation are read from a bill. Names and
   addresses are not extracted.
+- Bill details typed into the form stay in the browser. The plan is
+  calculated there, and the details are never sent to RoofScan's servers.
 
 ## Third parties that receive data
 
@@ -29,6 +31,7 @@ A household's report stays in their browser until they download it.
 | Esri World Imagery | Map tile requests, sent directly from the visitor's browser (location and IP address) | Satellite imagery |
 | OpenStreetMap Nominatim | Address searches and coordinates, sent from RoofScan's server, so the visitor's IP address is not shared | Geocoding |
 | NASA POWER | Coordinates | Solar resource data |
+| Open-Meteo | Coordinates | Rainfall data |
 
 ## Caches
 

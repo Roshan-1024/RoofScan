@@ -7,6 +7,22 @@ All notable changes to RoofScan are recorded here. The format follows
 
 ### Added
 
+- "Your electricity bill" step: units, billing period, amount, fixed
+  charges, sanctioned load, connection type, DISCOM, consumer number and
+  household size, validated in the browser. Yearly use and the price per
+  unit (without fixed charges) are derived from it, with a warning for
+  implausible tariffs.
+- "Your solar plan" step: recommended system adjustable panel by panel,
+  cost before and after the PM Surya Ghar subsidy (special category rates
+  by state, none for non-residential connections), first-year and 25-year
+  savings, payback, a sanctioned-load warning, and a monthly generation
+  chart against monthly use with a table view. Installed cost per kW is
+  editable.
+- Rainwater estimate from the roof outline and average rainfall, with the
+  rainfall figure editable and its source shown.
+- `GET /api/rainfall`: average annual rainfall for 2017 to 2024 from the
+  ECMWF IFS model via Open-Meteo, cached and rate limited.
+- The engine can mark a connection as not eligible for the subsidy.
 - Roof check flow at `/[lang]/check`: address search, "use my location" and
   a satellite map to tap the roof; an exact-scale snapshot at the best
   available zoom; and an outline editor for the roof and obstacles with

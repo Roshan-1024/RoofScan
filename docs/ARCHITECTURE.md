@@ -69,6 +69,20 @@ household through the check. Each step is its own component in
    corners can be dragged. `layoutPanels()` reruns on every change (deferred,
    so dragging stays smooth) and the side panel shows roof area, usable area,
    panel count and the largest system that fits.
+3. **Your electricity bill** (`bill-form.tsx`): units, billing period,
+   amount, fixed charges, sanctioned load, connection type, DISCOM, consumer
+   number and household size, validated with the zod schema in
+   `src/lib/bill.ts`.
+4. **Your solar plan** (`plan-view.tsx`): runs `planSolar()` in the browser
+   and shows the recommended system (adjustable panel by panel), cost and
+   subsidy, savings and payback, monthly generation against monthly use
+   (`monthly-chart.tsx`, with a table view), and the rainwater estimate.
+   Installed cost per kW and rainfall can be edited.
+
+`CheckFlow` holds the state of all four steps, so going back keeps what the
+household entered. Solar and rainfall data start loading as soon as a roof
+is chosen, so they are usually ready by the time the bill is entered. Bill
+details never leave the browser.
 
 ## Imagery
 
@@ -86,6 +100,13 @@ placeholder tiles. Attribution is shown on the map and under the snapshot.
   roof's dominant angle (the rotation with the smallest bounding box).
 - `src/lib/layout/panels.ts`: `layoutPanels()`; docs/METHODOLOGY.md
   describes the algorithm.
+
+## Rainfall
+
+`src/lib/data/open-meteo.ts` (server only) fetches daily precipitation for
+2017 to 2024 from the ECMWF IFS model via Open-Meteo, averages complete years
+and caches the result for 30 days per 0.05° cell. `GET /api/rainfall`
+exposes it, limited to India and rate limited like the other routes.
 
 ## Geocoding and rate limiting
 

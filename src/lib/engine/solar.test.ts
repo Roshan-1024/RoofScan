@@ -89,6 +89,16 @@ describe("planSolar", () => {
     expect(plan.lifetimeSavings).toBeCloseTo(plan.annualSavings * factor);
   });
 
+  it("gives no subsidy to connections that aren't residential", () => {
+    const plan = planSolar({ ...base, subsidyEligible: false });
+    expect(plan.subsidy).toBe(0);
+    expect(plan.netCost).toBe(plan.grossCost);
+  });
+
+  it("uses the special category rate when asked", () => {
+    expect(planSolar({ ...base, subsidyCategory: "special" }).subsidy).toBe(80_355);
+  });
+
   it("flags capacity above the sanctioned load", () => {
     expect(planSolar({ ...base, sanctionedLoadKw: 2 }).exceedsSanctionedLoad).toBe(true);
     expect(planSolar({ ...base, sanctionedLoadKw: 5 }).exceedsSanctionedLoad).toBe(false);

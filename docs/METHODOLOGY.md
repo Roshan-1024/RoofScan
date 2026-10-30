@@ -66,6 +66,18 @@ The default installed cost is ₹55,000 per kW before subsidy. Market prices
 for 1 to 3 kW systems run roughly ₹45,000 to ₹65,000 per kW, and MSEDCL's
 benchmark is ₹45,450 per kW. Households can enter their vendor's quote.
 
+## From the bill
+
+- **Yearly consumption** = units on the bill ÷ months in the billing period
+  × 12. Consumption is treated as even through the year.
+- **Price per unit** = (bill amount − fixed charges) ÷ units. Fixed or demand
+  charges stay the same after solar, so they are left out of savings.
+  RoofScan warns when this is below ₹1.50 or above ₹20, which usually means
+  a typing mistake.
+- **Connection type**: PM Surya Ghar only covers residential connections, so
+  other connections get no subsidy.
+- **Sanctioned load**: compared against the system size for a warning only.
+
 ## Savings and payback
 
 - **Tariff**: the average price per unit on the household's own bill.
@@ -76,7 +88,8 @@ benchmark is ₹45,450 per kW. Households can enter their vendor's quote.
   first, so using the average tariff understates savings.
 - **Payback** = net cost ÷ first-year savings.
 - **Lifetime savings** are summed over 25 years with 0.5% yearly module
-  degradation and no tariff increases.
+  degradation and no tariff increases. Maintenance and the inverter
+  replacement most systems need once in 25 years are not subtracted.
 
 ## Roof measurement
 
@@ -123,6 +136,24 @@ benchmark is ₹45,450 per kW. Households can enter their vendor's quote.
 ```
 litres per year = roof area (m²) × annual rainfall (mm) × 0.8
 ```
+
+- **Rainfall** is the average of complete years from 2017 to 2024 at the
+  roof's location, from the ECMWF IFS model (about 9 km grid) via the
+  Open-Meteo historical weather API. A year counts if at least 360 days have
+  data, and at least five complete years are needed. Households can replace
+  the figure with their own.
+- No free source is accurate everywhere. Compared with the India
+  Meteorological Department's long-term averages:
+
+  | City | IMD average | ECMWF IFS 2017–2024 | ERA5 (~25 km) | NASA POWER (~55 km) |
+  |---|---|---|---|---|
+  | Pune | ~722 mm | ~1,100 mm | 1,286 mm | 1,730 mm |
+  | Delhi | ~774 mm | 701 mm | 717 mm | |
+  | Chennai | ~1,400 mm | 1,321 mm | 1,128 mm | |
+
+  Near the Western Ghats every model reads high, partly because recent
+  years there have been wetter than the long-term average. RoofScan uses
+  the finest-grained source and shows where the figure comes from.
 
 - 1 mm of rain on 1 m² is 1 litre. The runoff coefficient of 0.8 is in the
   middle of the 0.7 to 0.9 range usually used for hard roofs.

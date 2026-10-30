@@ -7,7 +7,7 @@ import { fill, formatNumber, SQFT_PER_SQM } from "@/lib/format";
 import type { Point, Polygon } from "@/lib/geometry/polygon";
 import { ESRI_ATTRIBUTION, type RoofSnapshot } from "@/lib/imagery/esri";
 import { layoutPanels } from "@/lib/layout/panels";
-import type { Region } from "./types";
+import type { Region, RoofState } from "./types";
 
 type Mode = "roof" | "obstacle";
 
@@ -35,19 +35,24 @@ function Area({ label, m2, dict }: { label: string; m2: number; dict: Dictionary
 export function RoofEditor({
   snapshot,
   region,
+  initial,
   dict,
   onBack,
+  onContinue,
 }: {
   snapshot: RoofSnapshot;
   region?: Region;
+  /** A previously finished outline, when the household comes back to this step. */
+  initial?: Pick<RoofState, "roof" | "obstacles">;
   dict: Dictionary["check"]["roof"];
   onBack: () => void;
+  onContinue: (state: RoofState) => void;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const [mode, setMode] = useState<Mode>("roof");
-  const [roof, setRoof] = useState<Polygon>([]);
-  const [roofClosed, setRoofClosed] = useState(false);
-  const [obstacles, setObstacles] = useState<Polygon[]>([]);
+  const [mode, setMode] = useState<Mode>(initial ? "obstacle" : "roof");
+  const [roof, setRoof] = useState<Polygon>(initial?.roof ?? []);
+  const [roofClosed, setRoofClosed] = useState(Boolean(initial));
+  const [obstacles, setObstacles] = useState<Polygon[]>(initial?.obstacles ?? []);
   const [draft, setDraft] = useState<Polygon>([]);
   const [drag, setDrag] = useState<DragTarget | null>(null);
 
@@ -153,6 +158,17 @@ export function RoofEditor({
     setObstacles([]);
     setDraft([]);
     setMode("roof");
+  }
+
+  function finish() {
+    // Lay out from the current outline rather than the deferred copy, which can lag a drag.
+    const finalLayout = layoutPanels({
+      roof,
+      obstacles,
+      metersPerPixel: snapshot.metersPerPixel,
+      latitude: snapshot.center.lat,
+    });
+    onContinue({ roof, obstacles, layout: finalLayout });
   }
 
   const instructions = mode === "roof" ? (roofClosed ? dict.instructionsDone : dict.instructionsRoof) : dict.instructionsObstacle;
@@ -325,7 +341,17 @@ export function RoofEditor({
                 </dd>
               </div>
             </dl>
-            {layout.panelCount === 0 && <p className="text-danger">{dict.noPanels}</p>}
+            {layout.panelCount === 0 ? (
+              <p className="text-danger">{dict.noPanels}</p>
+            ) : (
+              <button
+                type="button"
+                onClick={finish}
+                className="w-full rounded-full bg-primary px-5 py-3 font-semibold text-primary-ink"
+              >
+                {dict.continue}
+              </button>
+            )}
           </>
         ) : (
           <p className="text-muted">{dict.drawFirst}</p>

@@ -27,8 +27,11 @@ SAM 3.1 and Muse Voice Transcribe.
 | Roof outline editor with obstacles and automatic panel layout | Done |
 | Upload your own roof photo where satellite imagery is too coarse | Planned |
 | Automatic roof and obstacle outlines with SAM 3.1 | Planned |
-| Electricity bill reading with Muse Spark | Planned |
-| Results, application checklist and PDF report | Planned |
+| Bill details form, with yearly use and price per unit derived from it | Done |
+| Solar plan: system size, cost after subsidy, savings, payback, monthly chart | Done |
+| Rainwater estimate from the same roof | Done |
+| Electricity bill reading from a photo with Muse Spark | Planned |
+| Application checklist and PDF report | Planned |
 | Voice questions with Muse Voice Transcribe | Planned |
 
 [CHANGELOG.md](CHANGELOG.md) records what each change added.
@@ -95,6 +98,7 @@ source behind the numbers.
 | `GET /api/solar-resource?lat=&lon=` | Monthly solar irradiance for a location in India (NASA POWER) |
 | `GET /api/geocode?q=&lang=` | Up to five places in India matching an address (OpenStreetMap Nominatim) |
 | `GET /api/region?lat=&lon=` | State and district for a location in India |
+| `GET /api/rainfall?lat=&lon=` | Average annual rainfall for a location in India (ECMWF IFS via Open-Meteo) |
 
 ## Privacy
 
@@ -111,6 +115,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
   Geographics, and the GIS User Community (shown on the map and snapshot).
 - Geocoding: © OpenStreetMap contributors, via Nominatim.
 - Solar resource: NASA POWER.
+- Rainfall: Open-Meteo (open-meteo.com), ECMWF IFS model, CC BY 4.0.
 
 ## License
 

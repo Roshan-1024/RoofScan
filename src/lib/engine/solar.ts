@@ -22,6 +22,8 @@ export interface SolarPlanInput {
   /** Average price of a unit on the household's bill, ₹/kWh. */
   tariffPerKwh: number;
   subsidyCategory: SubsidyCategory;
+  /** PM Surya Ghar only covers residential connections; false gives no subsidy. Defaults to true. */
+  subsidyEligible?: boolean;
   /** Sanctioned load from the bill, in kW. Used for a warning, not as a cap. */
   sanctionedLoadKw?: number;
   /** Installed cost before subsidy, ₹/kW. */
@@ -98,6 +100,7 @@ export function planSolar(input: SolarPlanInput): SolarPlan {
     annualConsumptionKwh,
     tariffPerKwh,
     subsidyCategory,
+    subsidyEligible = true,
     sanctionedLoadKw,
     costPerKw = DEFAULT_COST_PER_KW,
     exportRatePerKwh = DEFAULT_EXPORT_RATE_PER_KWH,
@@ -136,7 +139,7 @@ export function planSolar(input: SolarPlanInput): SolarPlan {
   const annualGenerationKwh = annualYieldPerKw * capacityKw;
 
   const grossCost = Math.round(capacityKw * costPerKw);
-  const subsidy = Math.min(centralSubsidy(capacityKw, subsidyCategory), grossCost);
+  const subsidy = subsidyEligible ? Math.min(centralSubsidy(capacityKw, subsidyCategory), grossCost) : 0;
   const netCost = grossCost - subsidy;
 
   const annualSavings = savingsInYear(annualGenerationKwh, annualConsumptionKwh, tariffPerKwh, exportRatePerKwh, 0);
